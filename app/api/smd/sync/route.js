@@ -19,5 +19,5 @@ export async function POST(req){try{
  "https://za.smdtechnologies.com/bag/volkano-refine-156-laptop-backpack-blk-charc"
  ]; const out=[];
  for(const url of urls){const r=await fetch(url,{cache:"no-store",redirect:"manual",headers:{cookie,accept:"application/json,text/html,*/*","x-requested-with":"XMLHttpRequest"}});const txt=await r.text();out.push({url,status:r.status,type:r.headers.get("content-type"),length:txt.length,prices:prices(txt),sample:txt.slice(0,3500)})}
- console.log("SMD_PRICE_DISCOVERY",JSON.stringify(out));return NextResponse.json({ok:true,message:"SMD price discovery completed.",results:out.map(({sample,...x})=>x)});
+ return NextResponse.json({ok:true,message:"SMD price discovery completed.",results:out});
 }catch(e){console.error("SMD_PRICE_ERROR",e);return NextResponse.json({error:e.message},{status:500})}}
