@@ -52,4 +52,7 @@ body{background:#fff;color:#111}
 .referenceGaming{background:url('/reference-gaming.webp') center/cover no-repeat!important}
 .referenceOffice{background:url('/reference-office.webp') center/cover no-repeat!important}
 .promorow .promocard{aspect-ratio:3.72/1;min-height:0!important;background-color:#eee}
+.showcasegrid{grid-template-columns:2.9fr repeat(5,1fr)!important}
+.showcasehead>button{display:none!important}
+.showcard{height:237px!important}
 @media(max-width:760px){.referenceHero{min-height:210px}.referenceHero img{width:auto;height:210px;max-width:none;transform:translateX(-2%)}.promorow .promocard{aspect-ratio:3.72/1}}
