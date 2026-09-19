@@ -30,3 +30,16 @@ body{background:#fff;color:#111}
 .section{margin-top:25px!important}.grid{grid-template-columns:repeat(6,1fr)!important}
 @media(max-width:1050px){.headin{grid-template-columns:220px 1fr auto!important}.actions span{display:none}.categorycircles{grid-template-columns:repeat(7,1fr)!important}.showcasegrid{grid-template-columns:repeat(3,1fr)!important}.showcasebrand{grid-row:span 2}.catin small{display:none!important}}
 @media(max-width:760px){.headin{grid-template-columns:145px auto!important}.brandlogo{width:140px!important}.search{grid-column:1/-1}.categorycircles{grid-template-columns:repeat(4,1fr)!important}.retailhero{height:285px!important}.retailhero .herocopy{width:55%!important}.retailhero .herocopy h1{font-size:32px!important}.heroProducts{width:45%!important;height:190px!important}.heronote{display:none}.showcasegrid{grid-template-columns:repeat(2,1fr)!important}.showcasebrand{grid-column:1/-1}.promorow{grid-template-columns:1fr!important}.grid{grid-template-columns:repeat(2,1fr)!important}}
+
+/* Reference-faithful asset and merchandising fixes */
+.brandlogo{height:auto!important;max-height:66px!important}
+.brandlogoStrip{overflow:visible!important}
+.brandNames{display:grid;grid-template-columns:repeat(8,1fr);gap:10px}
+.brandNames span{height:72px;border:1px solid #e6e8eb;border-radius:8px;background:#fff;display:grid;place-items:center;padding:10px;text-align:center;font-size:18px;font-weight:900;letter-spacing:-.5px;color:#111}
+.brandNames span:nth-child(5){color:#222}.brandNames span:nth-child(6){color:#069bd7}.brandNames span:nth-child(8){color:#1854a2}
+.heroProducts button:nth-child(1){transform:scale(1.08)}
+.heroProducts button:nth-child(2){transform:scale(.9)}
+.heroProducts button:nth-child(3){transform:scale(.88)}
+.heroProducts button:nth-child(4){transform:scale(.92)}
+@media(max-width:1050px){.brandNames{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.brandNames{display:flex;overflow-x:auto}.brandNames span{min-width:145px}.brandlogo{max-height:50px!important}}
