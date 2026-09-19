@@ -43,3 +43,13 @@ body{background:#fff;color:#111}
 .heroProducts button:nth-child(4){transform:scale(.92)}
 @media(max-width:1050px){.brandNames{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:760px){.brandNames{display:flex;overflow-x:auto}.brandNames span{min-width:145px}.brandlogo{max-height:50px!important}}
+
+/* Approved reference artwork */
+.referenceHero{display:block;width:100%;border-radius:9px;overflow:hidden}
+.referenceHero img{display:block;width:100%;height:auto}
+.referenceVolkano{background:url('/reference-volkano.webp') center/cover no-repeat!important;padding:0!important;border:0!important}
+.referenceGifts{background:url('/reference-gifts.webp') center/cover no-repeat!important}
+.referenceGaming{background:url('/reference-gaming.webp') center/cover no-repeat!important}
+.referenceOffice{background:url('/reference-office.webp') center/cover no-repeat!important}
+.promorow .promocard{aspect-ratio:3.72/1;min-height:0!important;background-color:#eee}
+@media(max-width:760px){.referenceHero{min-height:210px}.referenceHero img{width:auto;height:210px;max-width:none;transform:translateX(-2%)}.promorow .promocard{aspect-ratio:3.72/1}}
