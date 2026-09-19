@@ -8,3 +8,5 @@ Admin: /admin
 
 Database: standalone Supabase project Gifting Guru (`xvzupsflasjdejgkcgrt`).
 
+
+Production deployment target: Vercel giftingguru.
