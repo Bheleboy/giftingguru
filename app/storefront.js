@@ -1,6 +1,7 @@
 "use client";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import GiftReminder from "./gift-reminder";
 const sb = createClient(
   "https://xvzupsflasjdejgkcgrt.supabase.co",
   "sb_publishable_ekMMmdmDw5YtFdhHUfh62g_Lz15Pwaf",
@@ -218,6 +219,7 @@ export default function Storefront({ initialItems = [] }) {
           </small>
         </div>
       </nav>
+      <GiftReminder />
       <section className="categorysection" id="explore">
         <div className="sectionhead">
           <h2>Shop by Category</h2>
