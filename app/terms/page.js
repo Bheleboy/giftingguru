@@ -1,21 +1,147 @@
 import Link from "next/link";
 
-export const metadata={title:"Terms of Service | GiftingGuru",description:"Terms that apply when shopping with GiftingGuru in South Africa."};
+export const metadata = {
+  title: "Terms of Service | GiftingGuru",
+  description:
+    "Terms that apply when shopping with GiftingGuru in South Africa.",
+};
 
-export default function TermsPage(){return <main className="infopage legalpage">
-  <Link href="/" className="back">← Back to GiftingGuru</Link><p className="legaleyebrow">Last updated: 20 September 2026</p><h1>Terms of Service</h1>
-  <p>These terms apply to your use of giftingguru.co.za and purchases from GiftingGuru. By placing an order, you confirm that you are legally able to enter into a contract and that the information you provide is accurate. Nothing in these terms limits any right you have under the Consumer Protection Act 68 of 2008, the Electronic Communications and Transactions Act 25 of 2002, or other applicable South African law.</p>
-  <h2>1. About GiftingGuru</h2><p>GiftingGuru is a South African online retailer of electronics, accessories, gifts, home and lifestyle products. For customer service, email <a href="mailto:hello@giftingguru.co.za">hello@giftingguru.co.za</a>. For legal, privacy or administrative queries, email <a href="mailto:admin@giftingguru.co.za">admin@giftingguru.co.za</a>.</p>
-  <h2>2. Products and availability</h2><ul><li>Product images are illustrative. Colour and appearance may vary slightly by screen, model or production batch.</li><li>Specifications, stock and supplier availability can change. We will contact you if an ordered item becomes unavailable.</li><li>We may limit quantities where reasonably necessary to prevent fraud, resale abuse or obvious stock errors.</li><li>Brand names and trademarks belong to their respective owners.</li></ul>
-  <h2>3. Pricing and payment</h2><p>Prices are displayed in South African rand and include applicable taxes where required. Delivery charges, if any, are shown before payment. Payment is processed by the payment provider shown at checkout. GiftingGuru does not store complete card numbers or card security codes.</p><p>If a price, description or availability is clearly incorrect because of a technical or supplier error, we may reject or cancel the affected order before dispatch. If payment has been collected, we will refund it to the original payment method. A cart or automated acknowledgement is not acceptance of an order; the sale is accepted when we confirm dispatch or otherwise expressly confirm the order.</p>
-  <h2>4. Orders and verification</h2><p>We may perform reasonable fraud, address and payment checks. We may ask for information needed to verify an order, but we will never ask for your banking password, card PIN or one-time password. We may cancel an order where payment is not authorised, information cannot be verified, stock is unavailable, or fraud is reasonably suspected.</p>
-  <h2>5. Delivery</h2><p>We deliver within South Africa to serviceable addresses. Delivery estimates are not guarantees and may be affected by courier delays, remote-area routing, public holidays, severe weather or events beyond our reasonable control. Risk passes to you when the order is delivered to you or a person you authorised to receive it. See our <Link href="/shipping">Shipping Policy</Link>.</p>
-  <h2>6. Cancellations, returns and refunds</h2><p>Your rights depend on why an item is returned. Change-of-mind returns, incorrect items, transit damage and defective goods follow different processes and time limits. Our <Link href="/returns">Returns, Refunds & Exchanges Policy</Link> forms part of these terms.</p>
-  <h2>7. Warranties and defective goods</h2><p>Goods are supplied with the statutory protections that apply under South African law. Manufacturer or supplier warranties may also apply. A warranty does not cover fair wear and tear, accidental or liquid damage, misuse, unauthorised repairs or modifications, power-surge damage, or use contrary to the manufacturer’s instructions, unless applicable law requires otherwise.</p>
-  <h2>8. Website use</h2><p>You may use this website for lawful personal shopping. You may not interfere with its security, scrape it at unreasonable volume, upload harmful code, misuse promotions, impersonate another person, or use the website for fraud. Website content, branding and original design are owned by or licensed to GiftingGuru and may not be commercially reused without permission.</p>
-  <h2>9. Liability</h2><p>To the fullest extent allowed by law, GiftingGuru is not liable for indirect or consequential loss that was not reasonably foreseeable when the order was placed. We are not responsible for loss caused by misuse, unauthorised modification, incompatible third-party equipment or failure to follow product instructions. This does not exclude liability that cannot lawfully be excluded, including statutory consumer rights.</p>
-  <h2>10. Privacy and communications</h2><p>We process personal information as described in our <Link href="/privacy">Privacy Policy</Link>. Transactional messages about an order are part of fulfilling your purchase. Marketing messages are sent only where permitted, and you may unsubscribe at any time.</p>
-  <h2>11. Changes and governing law</h2><p>We may update these terms for future website use and purchases. The version shown when you order applies to that order. These terms are governed by South African law, and disputes are subject to the jurisdiction of the appropriate South African courts or consumer bodies.</p>
-  <h2>12. Complaints</h2><p>Email <a href="mailto:hello@giftingguru.co.za">hello@giftingguru.co.za</a> with your order number and a clear description of the issue. We will try to resolve complaints fairly and promptly. You may also approach the National Consumer Commission or another competent consumer body where applicable.</p>
-  <Link href="/#shop" className="infocta">Continue shopping</Link>
-</main>}
+export default function TermsPage() {
+  return (
+    <main className="infopage legalpage">
+      <Link href="/" className="back">
+        ← Back to GiftingGuru
+      </Link>
+      <p className="legaleyebrow">Last updated: 20 September 2026</p>
+      <h1>Terms of Service</h1>
+      <p>
+        These terms apply to your use of giftingguru.co.za and purchases from
+        GiftingGuru. By placing an order, you confirm that you are legally able
+        to enter into a contract and that the information you provide is
+        accurate. Nothing in these terms limits any right you have under the
+        Consumer Protection Act 68 of 2008, the Electronic Communications and
+        Transactions Act 25 of 2002, or other applicable South African law.
+      </p>
+      <h2>1. About GiftingGuru</h2>
+      <p>
+        GiftingGuru is a South African online retailer of electronics,
+        accessories, gifts, home and lifestyle products. For customer service,
+        email{" "}
+        <a href="mailto:hello@giftingguru.co.za">hello@giftingguru.co.za</a>.
+        For legal, privacy or administrative queries, email{" "}
+        <a href="mailto:admin@giftingguru.co.za">admin@giftingguru.co.za</a>.
+      </p>
+      <h2>2. Products and availability</h2>
+      <ul>
+        <li>
+          Product images are illustrative. Colour and appearance may vary
+          slightly by screen, model or production batch.
+        </li>
+        <li>
+          Specifications, stock and supplier availability can change. We will
+          contact you if an ordered item becomes unavailable.
+        </li>
+        <li>
+          We may limit quantities where reasonably necessary to prevent fraud,
+          resale abuse or obvious stock errors.
+        </li>
+        <li>Brand names and trademarks belong to their respective owners.</li>
+      </ul>
+      <h2>3. Pricing and payment</h2>
+      <p>
+        Prices are displayed in South African rand and include applicable taxes
+        where required. Nationwide delivery is R120 per order and is free when
+        the order subtotal is R1,500 or more. Delivery charges are shown before
+        payment.
+        Payment is processed by the payment provider shown at checkout.
+        GiftingGuru does not store complete card numbers or card security codes.
+      </p>
+      <p>
+        If a price, description or availability is clearly incorrect because of
+        a technical or supplier error, we may reject or cancel the affected
+        order before dispatch. If payment has been collected, we will refund it
+        to the original payment method. A cart or automated acknowledgement is
+        not acceptance of an order; the sale is accepted when we confirm
+        dispatch or otherwise expressly confirm the order.
+      </p>
+      <h2>4. Orders and verification</h2>
+      <p>
+        We may perform reasonable fraud, address and payment checks. We may ask
+        for information needed to verify an order, but we will never ask for
+        your banking password, card PIN or one-time password. We may cancel an
+        order where payment is not authorised, information cannot be verified,
+        stock is unavailable, or fraud is reasonably suspected.
+      </p>
+      <h2>5. Delivery</h2>
+      <p>
+        We deliver within South Africa to serviceable addresses. Delivery
+        estimates are not guarantees and may be affected by courier delays,
+        remote-area routing, public holidays, severe weather or events beyond
+        our reasonable control. Risk passes to you when the order is delivered
+        to you or a person you authorised to receive it. See our{" "}
+        <Link href="/shipping">Shipping Policy</Link>.
+      </p>
+      <h2>6. Cancellations, returns and refunds</h2>
+      <p>
+        Your rights depend on why an item is returned. Change-of-mind returns,
+        incorrect items, transit damage and defective goods follow different
+        processes and time limits. Our{" "}
+        <Link href="/returns">Returns, Refunds & Exchanges Policy</Link> forms
+        part of these terms.
+      </p>
+      <h2>7. Warranties and defective goods</h2>
+      <p>
+        Goods are supplied with the statutory protections that apply under South
+        African law. Manufacturer or supplier warranties may also apply. A
+        warranty does not cover fair wear and tear, accidental or liquid damage,
+        misuse, unauthorised repairs or modifications, power-surge damage, or
+        use contrary to the manufacturer’s instructions, unless applicable law
+        requires otherwise.
+      </p>
+      <h2>8. Website use</h2>
+      <p>
+        You may use this website for lawful personal shopping. You may not
+        interfere with its security, scrape it at unreasonable volume, upload
+        harmful code, misuse promotions, impersonate another person, or use the
+        website for fraud. Website content, branding and original design are
+        owned by or licensed to GiftingGuru and may not be commercially reused
+        without permission.
+      </p>
+      <h2>9. Liability</h2>
+      <p>
+        To the fullest extent allowed by law, GiftingGuru is not liable for
+        indirect or consequential loss that was not reasonably foreseeable when
+        the order was placed. We are not responsible for loss caused by misuse,
+        unauthorised modification, incompatible third-party equipment or failure
+        to follow product instructions. This does not exclude liability that
+        cannot lawfully be excluded, including statutory consumer rights.
+      </p>
+      <h2>10. Privacy and communications</h2>
+      <p>
+        We process personal information as described in our{" "}
+        <Link href="/privacy">Privacy Policy</Link>. Transactional messages
+        about an order are part of fulfilling your purchase. Marketing messages
+        are sent only where permitted, and you may unsubscribe at any time.
+      </p>
+      <h2>11. Changes and governing law</h2>
+      <p>
+        We may update these terms for future website use and purchases. The
+        version shown when you order applies to that order. These terms are
+        governed by South African law, and disputes are subject to the
+        jurisdiction of the appropriate South African courts or consumer bodies.
+      </p>
+      <h2>12. Complaints</h2>
+      <p>
+        Email{" "}
+        <a href="mailto:hello@giftingguru.co.za">hello@giftingguru.co.za</a>{" "}
+        with your order number and a clear description of the issue. We will try
+        to resolve complaints fairly and promptly. You may also approach the
+        National Consumer Commission or another competent consumer body where
+        applicable.
+      </p>
+      <Link href="/#shop" className="infocta">
+        Continue shopping
+      </Link>
+    </main>
+  );
+}

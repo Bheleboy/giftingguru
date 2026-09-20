@@ -1,3 +1,58 @@
 import Link from "next/link";
-export const metadata={title:"Shipping Policy | GiftingGuru"};
-export default function ShippingPage(){return <main className="infopage legalpage"><Link href="/" className="back">← Back to GiftingGuru</Link><p className="legaleyebrow">Last updated: 20 September 2026</p><h1>Shipping Policy</h1><h2>Where we deliver</h2><p>We deliver to serviceable street addresses across South Africa. Some remote areas may take longer or require an alternative collection point. We do not currently promise international delivery.</p><h2>Charges and estimates</h2><p>Available delivery methods, charges and estimated timeframes are shown at checkout before payment. Estimates begin after payment and any order verification, and exclude weekends and public holidays unless stated otherwise.</p><h2>Dispatch and split orders</h2><p>Orders are subject to stock confirmation. Items may ship separately where they come from different fulfilment locations. We will provide tracking when available. A delay does not automatically mean an order is lost or cancelled, but we will assist with a courier investigation.</p><h2>Delivery responsibility</h2><p>Please provide a complete, accurate address and a contact number where requested. Someone must be available to accept delivery. Extra costs caused by an incorrect address, repeated failed delivery, or an uncollected parcel may be charged where reasonable.</p><h2>Damaged parcels</h2><p>If possible, note visible damage with the courier. Keep all packaging and email <a href="mailto:hello@giftingguru.co.za">hello@giftingguru.co.za</a> as soon as possible, preferably within 48 hours, with your order number and photographs. See our <Link href="/returns">Returns, Refunds & Exchanges Policy</Link>.</p><Link href="/#shop" className="infocta">Continue shopping</Link></main>}
+export const metadata = { title: "Shipping Policy | GiftingGuru" };
+export default function ShippingPage() {
+  return (
+    <main className="infopage legalpage">
+      <Link href="/" className="back">
+        ← Back to GiftingGuru
+      </Link>
+      <p className="legaleyebrow">Last updated: 20 September 2026</p>
+      <h1>Shipping Policy</h1>
+      <h2>Where we deliver</h2>
+      <p>
+        We deliver to serviceable street addresses across South Africa. Some
+        remote areas may take longer or require an alternative collection point.
+        We do not currently promise international delivery.
+      </p>
+      <h2>Delivery charges</h2>
+      <p>
+        Nationwide delivery is charged at a flat rate of <strong>R120 per order</strong>.
+        Delivery is <strong>free when the order subtotal is R1,500 or more</strong>.
+        The qualifying subtotal is calculated after product discounts and before
+        delivery charges.
+      </p>
+      <h2>Delivery estimates</h2>
+      <p>
+        Estimated delivery timeframes are shown at checkout where available.
+        Estimates begin after payment and any order verification, and exclude
+        weekends and public holidays unless stated otherwise.
+      </p>
+      <h2>Dispatch and split orders</h2>
+      <p>
+        Orders are subject to stock confirmation. Items may ship separately
+        where they come from different fulfilment locations. We will provide
+        tracking when available. A delay does not automatically mean an order is
+        lost or cancelled, but we will assist with a courier investigation.
+      </p>
+      <h2>Delivery responsibility</h2>
+      <p>
+        Please provide a complete, accurate address and a contact number where
+        requested. Someone must be available to accept delivery. Extra costs
+        caused by an incorrect address, repeated failed delivery, or an
+        uncollected parcel may be charged where reasonable.
+      </p>
+      <h2>Damaged parcels</h2>
+      <p>
+        If possible, note visible damage with the courier. Keep all packaging
+        and email{" "}
+        <a href="mailto:hello@giftingguru.co.za">hello@giftingguru.co.za</a> as
+        soon as possible, preferably within 48 hours, with your order number and
+        photographs. See our{" "}
+        <Link href="/returns">Returns, Refunds & Exchanges Policy</Link>.
+      </p>
+      <Link href="/#shop" className="infocta">
+        Continue shopping
+      </Link>
+    </main>
+  );
+}
