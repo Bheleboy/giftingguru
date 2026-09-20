@@ -1,0 +1,3 @@
+import Link from "next/link";
+export const metadata={title:"Reminder emails updated | GiftingGuru"};
+export default async function Unsubscribed({searchParams}){const p=await searchParams;const error=p?.status;return <main className="infopage legalpage"><Link href="/" className="back">← Back to GiftingGuru</Link><h1>{error?"We could not update your reminders":"Reminder emails stopped"}</h1><p>{error?"Please contact hello@giftingguru.co.za and we will help you.":"You will no longer receive GiftingGuru gift reminder emails. Your saved dates remain available if you choose to reactivate them later."}</p><Link href="/gift-reminders" className="infocta">Manage gift reminders</Link></main>}
