@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-export const SITE_URL = "https://giftingguru.vercel.app";
+export const SITE_URL = "https://giftingguru.co.za";
 export const VAT_MULTIPLIER = 1.15;
 export const MARKUP_MULTIPLIER = 1.35;
 

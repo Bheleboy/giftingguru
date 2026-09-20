@@ -1,4 +1,4 @@
-import { getMerchantProducts, productUrl, retailPrice } from "../lib/catalog";
+import { getMerchantProducts, productUrl, retailPrice, SITE_URL } from "../lib/catalog";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -63,7 +63,7 @@ ${additionalImages}
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
 <channel>
 <title>GiftingGuru South Africa</title>
-<link>https://giftingguru.vercel.app</link>
+<link>${SITE_URL}</link>
 <description>GiftingGuru live product catalogue</description>
 ${items}
 </channel>

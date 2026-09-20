@@ -1,9 +1,9 @@
-import { getMerchantProducts, productUrl } from "./lib/catalog";
+import { getMerchantProducts, productUrl, SITE_URL } from "./lib/catalog";
 
 export default async function sitemap() {
   const products = await getMerchantProducts();
   return [
-    { url: "https://giftingguru.vercel.app", changeFrequency: "daily", priority: 1 },
+    { url: SITE_URL, changeFrequency: "daily", priority: 1 },
     ...products.map((product) => ({
       url: productUrl(product),
       lastModified: product.synced_at || undefined,

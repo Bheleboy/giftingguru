@@ -1,6 +1,8 @@
+import { SITE_URL } from "./lib/catalog";
+
 export default function robots() {
   return {
     rules: { userAgent: "*", allow: "/" },
-    sitemap: "https://giftingguru.vercel.app/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

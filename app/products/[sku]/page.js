@@ -38,7 +38,7 @@ export default async function ProductPage({ params }) {
       price: price?.toFixed(2),
       availability: stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
-      url: `https://giftingguru.vercel.app/products/${encodeURIComponent(product.sku)}`,
+      url: `https://giftingguru.co.za/products/${encodeURIComponent(product.sku)}`,
     },
   };
 
