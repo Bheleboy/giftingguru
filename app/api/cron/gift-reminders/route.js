@@ -218,7 +218,8 @@ export async function GET(request) {
           "Idempotency-Key": "gift-reminders-" + entry.due.map((d) => d.deliveryId).sort().join("-"),
         },
         body: JSON.stringify({
-          from: "GiftingGuru Reminders <hello@giftingguru.co.za>",
+          from: "GiftingGuru Reminders <reminders@send.giftingguru.co.za>",
+          reply_to: "hello@giftingguru.co.za",
           to: [entry.profile.email],
           subject,
           html: emailHtml(entry.profile, entry.due),
