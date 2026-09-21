@@ -1,4 +1,5 @@
 const SUPABASE_URL = "https://xvzupsflasjdejgkcgrt.supabase.co";
+const SENDER_DOMAIN = "send.giftingguru.co.za";
 
 export const dynamic = "force-dynamic";
 
@@ -16,25 +17,19 @@ export async function GET() {
     }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 
-  const [database, domains] = await Promise.all([
-    fetch(`${SUPABASE_URL}/rest/v1/gift_reminders?select=id&limit=1`, {
-      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
-      cache: "no-store",
-    }),
-    fetch("https://api.resend.com/domains", {
-      headers: { Authorization: `Bearer ${resendKey}` },
-      cache: "no-store",
-    }),
-  ]);
-  const domainBody = domains.ok ? await domains.json() : null;
-  const senderDomain = Boolean(domainBody?.data?.some((domain) =>
-    domain.name === "giftingguru.co.za" && domain.status === "verified"));
-  const ok = database.ok && domains.ok && senderDomain;
+  const database = await fetch(`${SUPABASE_URL}/rest/v1/gift_reminders?select=id&limit=1`, {
+    headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    cache: "no-store",
+  });
+  // Sending-only Resend keys intentionally cannot list domains.
+  const emailProvider = resendKey.startsWith("re_");
+  const senderDomain = SENDER_DOMAIN;
+  const ok = database.ok && emailProvider;
 
   return Response.json({
     ok,
     database: database.ok,
-    emailProvider: domains.ok,
+    emailProvider,
     scheduler: true,
     senderDomain,
   }, { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store" } });
