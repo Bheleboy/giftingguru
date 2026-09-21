@@ -163,7 +163,7 @@ export default function GiftReminder({ landing = false }) {
       email: profile.email.trim().toLowerCase(),
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: window.location.origin + "/gift-reminders?confirmed=1",
+        emailRedirectTo: "https://www.giftingguru.co.za/gift-reminders?confirmed=1",
         data: { first_name: profile.first_name.trim() },
       },
     });
