@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -41,6 +41,7 @@ export default function GiftReminder({ landing = false }) {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [manage, setManage] = useState(false);
+  const pendingSave = useRef(null);
 
   useEffect(() => {
     let timer;
@@ -71,6 +72,16 @@ export default function GiftReminder({ landing = false }) {
   }
 
   async function completePending(activeSession) {
+    if (pendingSave.current) return pendingSave.current;
+    pendingSave.current = finishPending(activeSession);
+    try {
+      return await pendingSave.current;
+    } finally {
+      pendingSave.current = null;
+    }
+  }
+
+  async function finishPending(activeSession) {
     const raw = localStorage.getItem("gg-reminder-pending");
     if (!raw) {
       await loadSaved(activeSession.user.id);
@@ -118,7 +129,11 @@ export default function GiftReminder({ landing = false }) {
   }
 
   const validDates = useMemo(
-    () => reminders.every((r) => r.person_name.trim() && r.occasion_date),
+    () => reminders.every((r) => {
+      const min = Number(r.budget_min || 0);
+      const max = Number(r.budget_max || 0);
+      return r.person_name.trim() && r.occasion_date && (!min || !max || min <= max);
+    }),
     [reminders],
   );
 
