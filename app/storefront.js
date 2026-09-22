@@ -44,12 +44,12 @@ function popularityScore(p) {
   if (heroSkus.has(p.sku)) score += 80;
   return score;
 }
-function Brand() {
+function Brand({ logoUrl = "/giftingguru-logo.png", name = "Gifting Guru" }) {
   return (
-    <img className="brandlogo" src="/giftingguru-logo.png" alt="Gifting Guru" />
+    <img className="brandlogo" src={logoUrl} alt={name} />
   );
 }
-export default function Storefront({ initialItems = [] }) {
+export default function Storefront({ initialItems = [], store }) {
   const [items, setItems] = useState(initialItems),
     [q, setQ] = useState(""),
     [cat, setCat] = useState("All"),
@@ -174,7 +174,7 @@ export default function Storefront({ initialItems = [] }) {
     <>
       <header className="head">
         <div className="headin">
-          <Brand />
+          <Brand logoUrl={store?.branding?.logoUrl} name={store?.name} />
           <div className="search">
             <input
               value={q}
