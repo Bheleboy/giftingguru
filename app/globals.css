@@ -491,6 +491,7 @@ a {
   border-radius: 18px;
   padding: 30px;
 }
+.checkoutmodal { z-index: 10001; }
 .checkoutpanel h2 { margin: 0 0 6px; font-size: 28px; }
 .checkoutpanel h3 { margin: 22px 0 10px; font-size: 16px; }
 .checkoutintro, .paymentnotice { color: #667085; font-size: 13px; }
