@@ -50,7 +50,7 @@ function Brand({ logoUrl = "/giftingguru-logo.png", name = "Gifting Guru" }) {
   );
 }
 export default function Storefront({ initialItems = [], store }) {
-  const [items, setItems] = useState(initialItems),
+  const [items, setItems] = useState(() => [...new Map(initialItems.map((product) => [product.id, product])).values()]),
     [q, setQ] = useState(""),
     [cat, setCat] = useState("All"),
     [sort, setSort] = useState("popular"),
@@ -65,7 +65,7 @@ export default function Storefront({ initialItems = [], store }) {
         .eq("active", true)
         .order("synced_at", { ascending: false })
         .limit(5000)
-        .then(({ data }) => setItems(data || []));
+        .then(({ data }) => setItems([...new Map((data || []).map((product) => [product.id, product])).values()]));
     try {
       setCart(JSON.parse(localStorage.getItem("ggcart") || "[]"));
     } catch {}
