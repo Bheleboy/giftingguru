@@ -6,8 +6,10 @@ const sb = createClient(
   "https://xvzupsflasjdejgkcgrt.supabase.co",
   "sb_publishable_ekMMmdmDw5YtFdhHUfh62g_Lz15Pwaf",
 );
-const sell = (p) =>
-  p.wholesale_price ? Math.ceil(Number(p.wholesale_price) * 1.15 * 1.35) : null;
+const sell = (p, store) =>
+  p.retail_price ?? (p.wholesale_price
+    ? Math.ceil(Number(p.wholesale_price) * (1 + Number(store?.vatPct ?? 15) / 100) * (1 + Number(store?.markupPct ?? 35) / 100))
+    : null);
 const demandSignals = [
   [/(true wireless|tws|earbud)/i, 120],
   [/(bluetooth.*headphone|wireless.*headphone)/i, 110],
@@ -30,13 +32,13 @@ const heroSkus = new Set([
   "VK-5018-GN",
   "VK-8063-WT",
 ]);
-function popularityScore(p) {
+function popularityScore(p, store) {
   const text = [p.name, p.brand, p.category_path, p.description].join(" ");
   let score = 0;
   for (const [pattern, weight] of demandSignals)
     if (pattern.test(text)) score += weight;
   const stock = Number(p.stock_qty || 0),
-    price = sell(p) || 0;
+    price = sell(p, store) || 0;
   if (stock > 0) score += 25;
   if (stock > 20) score += Math.min(25, Math.log10(stock + 1) * 10);
   if (price >= 150 && price <= 1500) score += 18;
@@ -56,6 +58,10 @@ export default function Storefront({ initialItems = [], store }) {
     [sort, setSort] = useState("popular"),
     [cart, setCart] = useState([]),
     [open, setOpen] = useState(false),
+    [checkoutOpen, setCheckoutOpen] = useState(false),
+    [checkoutBusy, setCheckoutBusy] = useState(false),
+    [checkoutMessage, setCheckoutMessage] = useState(""),
+    [orderResult, setOrderResult] = useState(null),
     [detail, setDetail] = useState(null),
     [photo, setPhoto] = useState(0);
   useEffect(() => {
@@ -97,14 +103,14 @@ export default function Storefront({ initialItems = [], store }) {
     );
     return filtered.sort((a, b) =>
       sort === "price-low"
-        ? (sell(a) || Infinity) - (sell(b) || Infinity)
+        ? (sell(a, store) || Infinity) - (sell(b, store) || Infinity)
         : sort === "price-high"
-          ? (sell(b) || 0) - (sell(a) || 0)
+          ? (sell(b, store) || 0) - (sell(a, store) || 0)
           : sort === "newest"
             ? String(b.synced_at || "").localeCompare(String(a.synced_at || ""))
-            : popularityScore(b) - popularityScore(a),
+            : popularityScore(b, store) - popularityScore(a, store),
     );
-  }, [items, cat, deferredQ, sort]);
+  }, [items, cat, deferredQ, sort, store]);
   const categoryCards = useMemo(
     () =>
       cats
@@ -149,7 +155,7 @@ export default function Storefront({ initialItems = [], store }) {
     document.getElementById("shop")?.scrollIntoView();
   }
   function add(p) {
-    const price = sell(p);
+    const price = sell(p, store);
     if (!price) return;
     setCart((c) => {
       const f = c.find((x) => x.id === p.id);
@@ -170,6 +176,32 @@ export default function Storefront({ initialItems = [], store }) {
   const shipping = subtotal >= 1500 || subtotal === 0 ? 0 : 120;
   const total = subtotal + shipping;
   const freeDeliveryGap = Math.max(0, 1500 - subtotal);
+  async function submitCheckout(event) {
+    event.preventDefault();
+    setCheckoutBusy(true);
+    setCheckoutMessage("");
+    const form = new FormData(event.currentTarget);
+    const payload = {
+      items: cart.map(({ id, qty }) => ({ id, qty })),
+      customer: {
+        firstName: form.get("firstName"), lastName: form.get("lastName"),
+        email: form.get("email"), phone: form.get("phone"),
+      },
+      shippingAddress: {
+        recipient: `${form.get("firstName")} ${form.get("lastName")}`,
+        line1: form.get("line1"), line2: form.get("line2"), suburb: form.get("suburb"),
+        city: form.get("city"), province: form.get("province"), postalCode: form.get("postalCode"),
+      },
+    };
+    try {
+      const response = await fetch("/api/checkout/create", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Checkout could not be completed.");
+      setOrderResult(result);
+      setCart([]);
+    } catch (error) { setCheckoutMessage(error.message); }
+    finally { setCheckoutBusy(false); }
+  }
   return (
     <>
       <header className="head">
@@ -328,7 +360,7 @@ export default function Storefront({ initialItems = [], store }) {
                 )}
                 <div>
                   <span>{p.name}</span>
-                  <b>R {sell(p)?.toLocaleString("en-ZA")}</b>
+                  <b>R {sell(p, store)?.toLocaleString("en-ZA")}</b>
                 </div>
               </article>
             ))}
@@ -376,7 +408,7 @@ export default function Storefront({ initialItems = [], store }) {
         {shown.length ? (
           <div className="grid">
             {(q || cat !== "All" ? shown : shown.slice(0, 18)).map((p) => {
-              const price = sell(p),
+              const price = sell(p, store),
                 soh = Number(p.stock_qty || 0);
               return (
                 <article className="card" key={p.id} onClick={() => view(p)}>
@@ -506,7 +538,7 @@ export default function Storefront({ initialItems = [], store }) {
               <h1>{detail.name}</h1>
               <div className="detailSku">SKU {detail.sku}</div>
               <div className="detailPrice">
-                R {sell(detail)?.toLocaleString("en-ZA")}
+                R {sell(detail, store)?.toLocaleString("en-ZA")}
               </div>
               <div className="detailStock">
                 {Number(detail.stock_qty || 0) > 0
@@ -525,7 +557,7 @@ export default function Storefront({ initialItems = [], store }) {
               </div>
               <button
                 className="bigadd"
-                disabled={!sell(detail) || Number(detail.stock_qty || 0) < 1}
+                disabled={!sell(detail, store) || Number(detail.stock_qty || 0) < 1}
                 onClick={() => add(detail)}
               >
                 Add to cart
@@ -580,10 +612,52 @@ export default function Storefront({ initialItems = [], store }) {
               <span>Total</span>
               <span>R {total.toLocaleString("en-ZA")}</span>
             </div>
-            <button className="checkout" disabled={!cart.length}>
+            <button className="checkout" disabled={!cart.length} onClick={() => { setOpen(false); setCheckoutOpen(true); }}>
               Checkout
             </button>
           </aside>
+        </div>
+      )}
+      {checkoutOpen && (
+        <div className="modal checkoutmodal" onClick={() => !checkoutBusy && setCheckoutOpen(false)}>
+          <section className="checkoutpanel" onClick={(event) => event.stopPropagation()}>
+            <button className="modalclose" onClick={() => setCheckoutOpen(false)}>×</button>
+            {orderResult ? (
+              <div className="orderconfirmation">
+                <span className="confirmicon">✓</span>
+                <h2>Order request received</h2>
+                <p>Your reference is <b>{orderResult.order.order_number}</b>.</p>
+                <p>Secure online payment is being activated. No payment has been taken and the order will not be sent to the supplier until payment is confirmed.</p>
+                <div className="checkouttotals"><span>Total</span><b>R {Number(orderResult.order.total).toLocaleString("en-ZA")}</b></div>
+                <button className="checkout" onClick={() => { setCheckoutOpen(false); setOrderResult(null); }}>Continue shopping</button>
+              </div>
+            ) : (
+              <form onSubmit={submitCheckout}>
+                <h2>Secure checkout</h2>
+                <p className="checkoutintro">Enter your delivery details. Prices, stock and delivery are verified again before the order is created.</p>
+                <h3>Contact details</h3>
+                <div className="checkoutgrid">
+                  <label>First name<input name="firstName" required autoComplete="given-name" /></label>
+                  <label>Last name<input name="lastName" required autoComplete="family-name" /></label>
+                  <label>Email<input name="email" type="email" required autoComplete="email" /></label>
+                  <label>Mobile number<input name="phone" required autoComplete="tel" /></label>
+                </div>
+                <h3>Delivery address</h3>
+                <div className="checkoutgrid">
+                  <label className="wide">Street address<input name="line1" required autoComplete="address-line1" /></label>
+                  <label className="wide">Apartment, unit or complex<input name="line2" autoComplete="address-line2" /></label>
+                  <label>Suburb<input name="suburb" autoComplete="address-level3" /></label>
+                  <label>City<input name="city" required autoComplete="address-level2" /></label>
+                  <label>Province<select name="province" required defaultValue=""><option value="" disabled>Select province</option><option>Eastern Cape</option><option>Free State</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option><option>North West</option><option>Northern Cape</option><option>Western Cape</option></select></label>
+                  <label>Postal code<input name="postalCode" required inputMode="numeric" autoComplete="postal-code" /></label>
+                </div>
+                <div className="checkouttotals"><span>Subtotal</span><b>R {subtotal.toLocaleString("en-ZA")}</b><span>Nationwide delivery</span><b>{shipping ? `R ${shipping}` : "FREE"}</b><span>Total</span><b>R {total.toLocaleString("en-ZA")}</b></div>
+                {checkoutMessage && <div className="checkouterror">{checkoutMessage}</div>}
+                <button className="checkout" disabled={checkoutBusy}>{checkoutBusy ? "Verifying order..." : "Create order"}</button>
+                <p className="paymentnotice">No payment will be taken until the approved payment provider is connected.</p>
+              </form>
+            )}
+          </section>
         </div>
       )}
     </>
