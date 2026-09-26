@@ -2,6 +2,7 @@ import "server-only";
 
 import crypto from "node:crypto";
 import { createServerClient } from "./pricing";
+import { onOrderPaid } from "./fulfilment";
 
 // Stitch Express REST API - https://express.stitch.money/api-docs
 // Amounts are integer cents. Tokens live 15 minutes.
@@ -149,6 +150,8 @@ export async function confirmOrderPayment(db, order) {
       .select("*")
       .maybeSingle();
     if (error) throw error;
+    // Only the call that actually flipped the order to paid kicks off fulfilment.
+    if (data) await onOrderPaid(db, data, { testMode: stitchMode() === "test" });
     return data || { ...order, status: "paid", payment_status: "paid" };
   }
 
