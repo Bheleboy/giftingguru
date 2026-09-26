@@ -168,6 +168,11 @@ export default function Storefront({ initialItems = [], store }) {
     });
     setOpen(true);
   }
+  function changeQuantity(id, quantity) {
+    setCart((current) => current.flatMap((item) =>
+      item.id !== id ? [item] : quantity > 0 ? [{ ...item, qty: quantity }] : []
+    ));
+  }
   function view(p) {
     setDetail(p);
     setPhoto(0);
@@ -580,11 +585,17 @@ export default function Storefront({ initialItems = [], store }) {
                 {x.image ? <img src={x.image} /> : <div />}
                 <div>
                   <b>{x.name}</b>
-                  <div>Qty {x.qty}</div>
+                  <div className="cartquantity" aria-label={`Quantity for ${x.name}`}>
+                    <button type="button" aria-label={`Decrease quantity of ${x.name}`} onClick={() => changeQuantity(x.id, x.qty - 1)}>−</button>
+                    <span>Qty {x.qty}</span>
+                    <button type="button" aria-label={`Increase quantity of ${x.name}`} onClick={() => changeQuantity(x.id, x.qty + 1)}>+</button>
+                    <button type="button" className="cartremove" onClick={() => changeQuantity(x.id, 0)}>Remove</button>
+                  </div>
                 </div>
                 <b>R {(x.price * x.qty).toLocaleString("en-ZA")}</b>
               </div>
             ))}
+            {cart.length === 0 && <p>Your cart is empty.</p>}
             {cart.length > 0 && (
               <div className="shippingnotice">
                 {freeDeliveryGap > 0
