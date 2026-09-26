@@ -203,7 +203,8 @@ export async function ensureStitchSetup(host) {
     await api("/redirect-urls", { method: "POST", body: { redirectUrl: returnUrl } });
   }
 
-  if (!(await getSetting(db, webhookSecretKey()))) {
+  // A webhook added in the Stitch dashboard supplies its secret via STITCH_WEBHOOK_SECRET; don't register a duplicate.
+  if (!process.env.STITCH_WEBHOOK_SECRET && !(await getSetting(db, webhookSecretKey()))) {
     try {
       const hook = await api("/webhook", { method: "POST", body: { url: webhookUrlFor(host) } });
       if (hook?.data?.secret) await setSetting(db, webhookSecretKey(), hook.data.secret);
@@ -221,7 +222,7 @@ export async function ensureStitchSetup(host) {
 // ---- Webhook signature (Svix) ----
 
 export async function verifyWebhookSignature(db, headers, rawBody) {
-  const secret = await getSetting(db, webhookSecretKey());
+  const secret = process.env.STITCH_WEBHOOK_SECRET || (await getSetting(db, webhookSecretKey()));
   if (!secret) return { verified: false, reason: "no_secret" };
 
   const id = headers.get("svix-id") || headers.get("webhook-id");
