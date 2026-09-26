@@ -44,7 +44,6 @@ export default function GiftReminder({ landing = false }) {
   const pendingSave = useRef(null);
 
   useEffect(() => {
-    let timer;
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session || null);
       if (data.session) completePending(data.session);
@@ -53,11 +52,7 @@ export default function GiftReminder({ landing = false }) {
       setSession(nextSession || null);
       if (nextSession) setTimeout(() => completePending(nextSession), 0);
     });
-    if (!landing && !localStorage.getItem("gg-reminder-prompted")) {
-      timer = setTimeout(() => setOpen(true), 6500);
-    }
     return () => {
-      clearTimeout(timer);
       listener.subscription.unsubscribe();
     };
   }, []);
