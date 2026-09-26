@@ -202,6 +202,10 @@ export default function Storefront({ initialItems = [], store }) {
       const response = await fetch("/api/checkout/create", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Checkout could not be completed.");
+      if (result.payment?.url) {
+        window.location.assign(result.payment.url);
+        return;
+      }
       setOrderResult(result);
       setCart([]);
     } catch (error) { setCheckoutMessage(error.message); }
@@ -664,8 +668,8 @@ export default function Storefront({ initialItems = [], store }) {
                 </div>
                 <div className="checkouttotals"><span>Subtotal</span><b>R {subtotal.toLocaleString("en-ZA")}</b><span>Nationwide delivery</span><b>{shipping ? `R ${shipping}` : "FREE"}</b><span>Total</span><b>R {total.toLocaleString("en-ZA")}</b></div>
                 {checkoutMessage && <div className="checkouterror">{checkoutMessage}</div>}
-                <button className="checkout" disabled={checkoutBusy}>{checkoutBusy ? "Verifying order..." : "Create order"}</button>
-                <p className="paymentnotice">No payment will be taken until the approved payment provider is connected.</p>
+                <button className="checkout" disabled={checkoutBusy}>{checkoutBusy ? "Preparing secure payment..." : "Continue to secure payment"}</button>
+                <p className="paymentnotice">You will be taken to Stitch, our secure payment partner, to complete your payment.</p>
               </form>
             )}
           </section>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentStore } from "../../../lib/store";
 import { calculateRetailPrice, createServerClient, getPricingContext } from "../../../lib/pricing";
+import { createPaymentLink, ensureStitchSetup, stitchConfigured } from "../../../lib/stitch";
 
 export const runtime = "nodejs";
 
@@ -128,12 +129,39 @@ export async function POST(request) {
       throw itemError;
     }
 
-    return NextResponse.json({
-      ok: true,
-      order,
-      payment: { available: false, provider: null, status: "awaiting_provider_activation" },
-      message: "Order created. Secure payment will be enabled when the payment provider is activated.",
-    }, { status: 201 });
+    if (!stitchConfigured()) {
+      return NextResponse.json({
+        ok: true,
+        order,
+        payment: { available: false, provider: null, status: "awaiting_provider_activation" },
+        message: "Order created. Secure payment will be enabled when the payment provider is activated.",
+      }, { status: 201 });
+    }
+
+    try {
+      await ensureStitchSetup(store.hostname).catch((error) => console.error("stitch setup failed", error));
+      const link = await createPaymentLink({ order, customer: { firstName, lastName, email, phone }, host: store.hostname });
+      const { error: linkError } = await db.from("orders").update({
+        payment_provider: "stitch_express",
+        payment_reference: link.id,
+        payment_status: "pending",
+        updated_at: new Date().toISOString(),
+      }).eq("id", order.id);
+      if (linkError) throw linkError;
+
+      const response = NextResponse.json({
+        ok: true,
+        order: { ...order, payment_status: "pending" },
+        payment: { available: true, provider: "stitch_express", url: link.url },
+      }, { status: 201 });
+      response.cookies.set("gg_order", order.order_number, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
+      return response;
+    } catch (error) {
+      console.error("stitch payment link failed", error?.message, error?.body);
+      return NextResponse.json({
+        error: "Your order " + order.order_number + " was saved, but we could not start the payment. Please try again in a moment.",
+      }, { status: 502 });
+    }
   } catch (error) {
     console.error("checkout create failed", error);
     return NextResponse.json({ error: "We could not create the order. Please try again." }, { status: 500 });
