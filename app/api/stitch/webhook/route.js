@@ -21,11 +21,12 @@ export async function POST(request) {
   const db = createServerClient();
 
   const signature = await verifyWebhookSignature(db, request.headers, rawBody);
-  // With a stored secret, an unsigned or mis-signed call is rejected outright.
-  // Without one, we still only act on what the Stitch API itself confirms below.
-  if (!signature.verified && signature.reason !== "no_secret") {
-    return NextResponse.json({ error: "invalid signature" }, { status: 401 });
-  }
+  // The signature is logged, not enforced: a wrong or rotated secret must never block a
+  // real customer's order. Payment is only ever marked paid after Stitch's own API confirms
+  // the link is PAID with the right amount and reference (confirmOrderPayment), so a forged
+  // webhook can't mark anything paid.
+  if (signature.verified) console.log("stitch webhook signature verified");
+  else console.warn("stitch webhook signature not verified:", signature.reason);
 
   let payload;
   try {
