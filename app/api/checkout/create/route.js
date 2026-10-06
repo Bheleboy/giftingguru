@@ -83,7 +83,9 @@ export async function POST(request) {
     }
 
     const subtotal = lines.reduce((sum, line) => sum + line.lineTotal, 0);
-    const shipping = subtotal >= 1500 ? 0 : 120;
+    // Digital products need no delivery; physical orders ship free from R1,500.
+    const digitalOnly = lines.every((line) => String(line.product?.category_path || "").toLowerCase() === "digital");
+    const shipping = digitalOnly || subtotal >= 1500 ? 0 : 120;
     const total = subtotal + shipping;
     const orderNumber = "GG-" + new Date().toISOString().slice(0, 10).replaceAll("-", "") + "-" + crypto.randomUUID().slice(0, 8).toUpperCase();
 

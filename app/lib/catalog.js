@@ -42,6 +42,7 @@ export async function getMerchantProducts() {
       .from("products")
       .select("id,sku,name,description,brand,category_path,wholesale_price,stock_qty,image_urls,synced_at")
       .eq("active", true)
+      .or("category_path.is.null,category_path.neq.digital")
       .order("sku", { ascending: true })
       .range(from, from + pageSize - 1);
 

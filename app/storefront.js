@@ -163,7 +163,7 @@ export default function Storefront({ initialItems = [], store }) {
         ? c.map((x) => (x.id === p.id ? { ...x, qty: x.qty + 1 } : x))
         : [
             ...c,
-            { id: p.id, name: p.name, image: p.image_urls?.[0], price, qty: 1 },
+            { id: p.id, name: p.name, image: p.image_urls?.[0], price, qty: 1, digital: String(p.category_path || "").toLowerCase() === "digital" },
           ];
     });
     setOpen(true);
@@ -178,7 +178,8 @@ export default function Storefront({ initialItems = [], store }) {
     setPhoto(0);
   }
   const subtotal = cart.reduce((s, x) => s + x.price * x.qty, 0);
-  const shipping = subtotal >= 1500 || subtotal === 0 ? 0 : 120;
+  const digitalOnly = cart.length > 0 && cart.every((item) => item.digital);
+  const shipping = digitalOnly || subtotal >= 1500 || subtotal === 0 ? 0 : 120;
   const total = subtotal + shipping;
   const freeDeliveryGap = Math.max(0, 1500 - subtotal);
   async function submitCheckout(event) {
