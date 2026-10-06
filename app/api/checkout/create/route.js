@@ -13,6 +13,14 @@ function validEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function cleanAttribution(attr) {
+  if (!attr || typeof attr !== "object") return null;
+  const pick = (t) => t && typeof t === "object" ? Object.fromEntries(
+    Object.entries(t).filter(([k]) => /^(utm_[a-z]+|fbclid|gclid|landing|referrer|at)$/.test(k)).map(([k, v]) => [k, String(v).slice(0, 200)])
+  ) : null;
+  return { first: pick(attr.first), last: pick(attr.last) };
+}
+
 export async function POST(request) {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: "Checkout is not configured." }, { status: 503 });
@@ -113,6 +121,7 @@ export async function POST(request) {
       total,
       shipping_address: shippingAddress,
       payment_provider: "pending",
+      attribution: cleanAttribution(body.attribution),
     }).select("id,order_number,status,payment_status,subtotal,shipping_total,total").single();
     if (orderError) throw orderError;
 

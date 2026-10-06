@@ -2,13 +2,9 @@ import "server-only";
 
 import { cache } from "react";
 import { headers } from "next/headers";
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "./pricing";
 
-const supabase = createClient(
-  "https://xvzupsflasjdejgkcgrt.supabase.co",
-  "sb_publishable_ekMMmdmDw5YtFdhHUfh62g_Lz15Pwaf",
-  { auth: { persistSession: false } },
-);
+const supabase = createServerClient();
 
 const DEFAULT_HOST = "www.giftingguru.co.za";
 
@@ -19,7 +15,7 @@ function cleanHostname(value = "") {
 async function loadStore(hostname) {
   const { data, error } = await supabase
     .from("store_domains")
-    .select("hostname,is_primary,stores!inner(id,name,slug,domain,currency,default_markup_pct,vat_pct,active,store_branding(*))")
+    .select("hostname,is_primary,stores!inner(id,name,slug,domain,currency,vat_pct,active,store_branding(*))")
     .eq("hostname", hostname)
     .eq("verified", true)
     .eq("status", "verified")
@@ -39,7 +35,6 @@ async function loadStore(hostname) {
     slug: data.stores.slug,
     hostname: data.hostname,
     currency: data.stores.currency,
-    markupPct: Number(data.stores.default_markup_pct),
     vatPct: Number(data.stores.vat_pct),
     branding: branding || {},
   };
@@ -67,7 +62,6 @@ export function publicStoreConfig(store) {
     slug: store.slug,
     hostname: store.hostname,
     currency: store.currency,
-    markupPct: store.markupPct,
     vatPct: store.vatPct,
     branding: {
       logoUrl: store.branding.logo_url,

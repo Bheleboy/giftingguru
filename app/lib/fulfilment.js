@@ -143,6 +143,11 @@ export async function onOrderPaid(db, order, { testMode = false } = {}) {
     supplierOrderId = supplierOrder.id;
 
     await logEvent(db, { order, supplierOrderId, type: "payment_confirmed", status: "ok", details: { total: order.total, test: testMode } });
+    // One purchase event per order (unique dedupe_key), with the campaign that brought the customer.
+    await db.from("analytics_events").upsert({
+      event: "purchase", value: Number(order.total), order_id: order.id, dedupe_key: "purchase:" + order.id,
+      attribution: order.attribution || null, path: "/checkout", data: { order_number: order.order_number, test: testMode },
+    }, { onConflict: "dedupe_key", ignoreDuplicates: true });
 
     try {
       await sendEmail({

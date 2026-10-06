@@ -1,15 +1,10 @@
 "use client";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import GiftReminder from "./gift-reminder";
-const sb = createClient(
-  "https://xvzupsflasjdejgkcgrt.supabase.co",
-  "sb_publishable_ekMMmdmDw5YtFdhHUfh62g_Lz15Pwaf",
-);
-const sell = (p, store) =>
-  p.retail_price ?? (p.wholesale_price
-    ? Math.ceil(Number(p.wholesale_price) * (1 + Number(store?.vatPct ?? 15) / 100) * (1 + Number(store?.markupPct ?? 35) / 100))
-    : null);
+import { captureAttribution, getAttribution, track } from "./lib/analytics";
+// Retail price is calculated on the server; the browser never receives cost or markup data.
+const sell = (p) => p.retail_price ?? null;
+const isAvailable = (p) => p.available ?? (Boolean(p.retail_price) && Number(p.stock_qty || 0) > 0);
 const demandSignals = [
   [/(true wireless|tws|earbud)/i, 120],
   [/(bluetooth.*headphone|wireless.*headphone)/i, 110],
@@ -38,7 +33,7 @@ function popularityScore(p, store) {
   for (const [pattern, weight] of demandSignals)
     if (pattern.test(text)) score += weight;
   const stock = Number(p.stock_qty || 0),
-    price = sell(p, store) || 0;
+    price = sell(p) || 0;
   if (stock > 0) score += 25;
   if (stock > 20) score += Math.min(25, Math.log10(stock + 1) * 10);
   if (price >= 150 && price <= 1500) score += 18;
@@ -74,18 +69,43 @@ export default function Storefront({ initialItems = [], store }) {
     [checkoutMessage, setCheckoutMessage] = useState(""),
     [orderResult, setOrderResult] = useState(null),
     [detail, setDetail] = useState(null),
-    [photo, setPhoto] = useState(0);
+    [photo, setPhoto] = useState(0),
+    [shareNote, setShareNote] = useState("");
   useEffect(() => {
-    if (!initialItems.length)
-      sb.from("products")
-        .select("*")
-        .eq("active", true)
-        .order("synced_at", { ascending: false })
-        .limit(5000)
-        .then(({ data }) => setItems([...new Map((data || []).map((product) => [product.id, product])).values()]));
+    captureAttribution();
+    // Restore the cart, refreshing prices and dropping items that are no longer available.
+    let saved = [];
     try {
-      setCart(JSON.parse(localStorage.getItem("ggcart") || "[]"));
+      saved = JSON.parse(localStorage.getItem("ggcart") || "[]");
     } catch {}
+    const byId = new Map(items.map((p) => [p.id, p]));
+    let restored = saved.flatMap((item) => {
+      const live = byId.get(item.id);
+      if (items.length && (!live || !isAvailable(live))) return [];
+      return [live ? { ...item, sku: live.sku, price: sell(live), qty: Math.min(item.qty, Math.max(1, Number(live.stock_qty || 1))) } : item];
+    });
+    // Deep links: ?q=search  ?p=SKU (open product)  ?add=SKU (add to cart)
+    const params = new URLSearchParams(window.location.search);
+    const bySku = (sku) => items.find((p) => String(p.sku).toLowerCase() === String(sku || "").toLowerCase());
+    if (params.get("q")) {
+      setQ(params.get("q").slice(0, 80));
+      setTimeout(() => document.getElementById("shop")?.scrollIntoView(), 50);
+    }
+    const addSku = bySku(params.get("add"));
+    if (addSku && isAvailable(addSku)) {
+      if (!restored.some((x) => x.id === addSku.id)) restored = [...restored, cartLine(addSku)];
+      track("add_to_cart", { sku: addSku.sku, name: addSku.name, value: sell(addSku), price: sell(addSku) });
+      setOpen(true);
+      params.delete("add");
+      window.history.replaceState(null, "", window.location.pathname + (params.toString() ? "?" + params : "") + window.location.hash);
+    }
+    setCart(restored);
+    const openSku = bySku(params.get("p"));
+    if (openSku) {
+      setDetail(openSku);
+      track("view_item", { sku: openSku.sku, name: openSku.name, value: sell(openSku), price: sell(openSku) });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
     localStorage.setItem("ggcart", JSON.stringify(cart));
@@ -110,9 +130,9 @@ export default function Storefront({ initialItems = [], store }) {
     );
     return filtered.sort((a, b) =>
       sort === "price-low"
-        ? (sell(a, store) || Infinity) - (sell(b, store) || Infinity)
+        ? (sell(a) || Infinity) - (sell(b) || Infinity)
         : sort === "price-high"
-          ? (sell(b, store) || 0) - (sell(a, store) || 0)
+          ? (sell(b) || 0) - (sell(a) || 0)
           : sort === "newest"
             ? String(b.synced_at || "").localeCompare(String(a.synced_at || ""))
             : popularityScore(b, store) - popularityScore(a, store),
@@ -161,17 +181,34 @@ export default function Storefront({ initialItems = [], store }) {
     setCat("All");
     document.getElementById("shop")?.scrollIntoView();
   }
+  function cartLine(p) {
+    return { id: p.id, sku: p.sku, name: p.name, image: p.image_urls?.[0], price: sell(p), qty: 1, digital: String(p.category_path || "").toLowerCase() === "digital" };
+  }
+  function setProductParam(sku) {
+    const params = new URLSearchParams(window.location.search);
+    if (sku) params.set("p", sku); else params.delete("p");
+    window.history.replaceState(null, "", window.location.pathname + (params.toString() ? "?" + params : "") + window.location.hash);
+  }
+  function closeDetail() {
+    setDetail(null);
+    setProductParam(null);
+  }
+  async function shareProduct(p) {
+    const url = `${window.location.origin}/products/${encodeURIComponent(p.sku)}`;
+    try {
+      if (navigator.share) await navigator.share({ title: p.name, url });
+      else { await navigator.clipboard.writeText(url); setShareNote("Link copied"); setTimeout(() => setShareNote(""), 2000); }
+    } catch {}
+  }
   function add(p) {
-    const price = sell(p, store);
-    if (!price) return;
+    const price = sell(p);
+    if (!price || !isAvailable(p)) return;
+    track("add_to_cart", { sku: p.sku, name: p.name, value: price, price });
     setCart((c) => {
       const f = c.find((x) => x.id === p.id);
       return f
         ? c.map((x) => (x.id === p.id ? { ...x, qty: x.qty + 1 } : x))
-        : [
-            ...c,
-            { id: p.id, name: p.name, image: p.image_urls?.[0], price, qty: 1, digital: String(p.category_path || "").toLowerCase() === "digital" },
-          ];
+        : [...c, cartLine(p)];
     });
     setOpen(true);
   }
@@ -183,6 +220,8 @@ export default function Storefront({ initialItems = [], store }) {
   function view(p) {
     setDetail(p);
     setPhoto(0);
+    setProductParam(p.sku);
+    track("view_item", { sku: p.sku, name: p.name, value: sell(p), price: sell(p) });
   }
   const subtotal = cart.reduce((s, x) => s + x.price * x.qty, 0);
   const digitalOnly = cart.length > 0 && cart.every((item) => item.digital);
@@ -205,6 +244,7 @@ export default function Storefront({ initialItems = [], store }) {
         line1: form.get("line1"), line2: form.get("line2"), suburb: form.get("suburb"),
         city: form.get("city"), province: form.get("province"), postalCode: form.get("postalCode"),
       },
+      attribution: getAttribution(),
     };
     try {
       const response = await fetch("/api/checkout/create", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
@@ -387,7 +427,7 @@ export default function Storefront({ initialItems = [], store }) {
                 )}
                 <div>
                   <span>{p.name}</span>
-                  <b>R {sell(p, store)?.toLocaleString("en-ZA")}</b>
+                  <b>R {sell(p)?.toLocaleString("en-ZA")}</b>
                 </div>
               </article>
             ))}
@@ -435,7 +475,7 @@ export default function Storefront({ initialItems = [], store }) {
         {shown.length ? (
           <div className="grid">
             {(q ? shown.slice(0, 120) : cat !== "All" ? shown : shown.slice(0, 18)).map((p) => {
-              const price = sell(p, store),
+              const price = sell(p),
                 soh = Number(p.stock_qty || 0);
               return (
                 <article className="card" key={p.id} onClick={() => view(p)}>
@@ -456,7 +496,7 @@ export default function Storefront({ initialItems = [], store }) {
                         : "Price updating"}
                     </div>
                     <div className={"stock " + (soh < 10 ? "low" : "")}>
-                      {soh > 0
+                      {isAvailable(p)
                         ? soh < 10
                           ? "Only " + soh + " left"
                           : soh + " in stock"
@@ -464,7 +504,7 @@ export default function Storefront({ initialItems = [], store }) {
                     </div>
                     <button
                       className="add"
-                      disabled={!price || soh < 1}
+                      disabled={!isAvailable(p)}
                       onClick={(e) => {
                         e.stopPropagation();
                         add(p);
@@ -526,12 +566,12 @@ export default function Storefront({ initialItems = [], store }) {
         </div>
       </footer>
       {detail && (
-        <div className="modal" onClick={() => setDetail(null)}>
+        <div className="modal" onClick={closeDetail}>
           <section
             className="productmodal"
             onClick={(e) => e.stopPropagation()}
           >
-            <button className="modalclose" onClick={() => setDetail(null)}>
+            <button className="modalclose" onClick={closeDetail}>
               ×
             </button>
             <div className="gallery">
@@ -565,12 +605,12 @@ export default function Storefront({ initialItems = [], store }) {
               <h1>{detail.name}</h1>
               <div className="detailSku">SKU {detail.sku}</div>
               <div className="detailPrice">
-                R {sell(detail, store)?.toLocaleString("en-ZA")}
+                R {sell(detail)?.toLocaleString("en-ZA")}
               </div>
               <div className="detailStock">
-                {Number(detail.stock_qty || 0) > 0
+                {isAvailable(detail)
                   ? detail.stock_qty + " in stock"
-                  : "Out of stock"}
+                  : "Currently unavailable"}
               </div>
               {detail.description && (
                 <div className="description">{detail.description}</div>
@@ -584,11 +624,17 @@ export default function Storefront({ initialItems = [], store }) {
               </div>
               <button
                 className="bigadd"
-                disabled={!sell(detail, store) || Number(detail.stock_qty || 0) < 1}
+                disabled={!isAvailable(detail)}
                 onClick={() => add(detail)}
               >
-                Add to cart
+                {isAvailable(detail) ? "Add to cart" : "Currently unavailable"}
               </button>
+              <div className="sharerow">
+                <button type="button" className="sharelink" onClick={() => shareProduct(detail)}>
+                  {shareNote || "Share this product"}
+                </button>
+                <a className="sharelink" href={`/products/${encodeURIComponent(detail.sku)}`}>Open product page</a>
+              </div>
             </div>
           </section>
         </div>
@@ -645,7 +691,7 @@ export default function Storefront({ initialItems = [], store }) {
               <span>Total</span>
               <span>R {total.toLocaleString("en-ZA")}</span>
             </div>
-            <button className="checkout" disabled={!cart.length} onClick={() => { setOpen(false); setCheckoutOpen(true); }}>
+            <button className="checkout" disabled={!cart.length} onClick={() => { setOpen(false); setCheckoutOpen(true); track("begin_checkout", { value: total, skus: cart.map((x) => x.sku).filter(Boolean) }); }}>
               Checkout
             </button>
           </aside>

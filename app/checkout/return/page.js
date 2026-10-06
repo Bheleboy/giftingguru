@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { createServerClient } from "../../lib/pricing";
 import { confirmOrderPayment } from "../../lib/stitch";
 import ClearCart from "./clear-cart";
+import PurchasePixel from "./purchase-pixel";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Payment status | GiftingGuru", robots: { index: false } };
@@ -41,6 +42,7 @@ export default async function CheckoutReturnPage({ searchParams }) {
     view = (
       <>
         <ClearCart />
+        <PurchasePixel orderNumber={order.order_number} total={Number(order.total)} />
         <span className="confirmicon">✓</span>
         <h1>Payment received</h1>
         <p>Thank you. Your order <b>{order.order_number}</b> is confirmed and is now being prepared for dispatch.</p>

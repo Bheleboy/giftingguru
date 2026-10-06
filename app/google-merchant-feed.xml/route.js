@@ -38,7 +38,7 @@ export async function GET() {
     const products = await getMerchantProducts();
     const items = products.map((product) => {
       const price = retailPrice(product);
-      const availability = Number(product.stock_qty || 0) > 0 ? "in_stock" : "out_of_stock";
+      const availability = product.available ? "in_stock" : "out_of_stock";
       const additionalImages = (product.image_urls || []).slice(1, 11)
         .map((image) => `<g:additional_image_link>${xml(image)}</g:additional_image_link>`)
         .join("");

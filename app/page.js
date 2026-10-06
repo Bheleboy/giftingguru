@@ -1,18 +1,27 @@
 import Storefront from "./storefront";
-import { createClient } from "@supabase/supabase-js";
 import { getCurrentStore, publicStoreConfig } from "./lib/store";
-import { getPricingContext, priceCatalogue } from "./lib/pricing";
+import { getPublicCatalogue } from "./lib/public-catalog";
 
 export const revalidate = 300;
 
-export default async function Home(){
-  const store=await getCurrentStore();
-  const sb=createClient("https://xvzupsflasjdejgkcgrt.supabase.co","sb_publishable_ekMMmdmDw5YtFdhHUfh62g_Lz15Pwaf");
-  // Load the whole catalogue in 1,000-row pages (Supabase caps each request at 1,000).
-  const { count } = await sb.from("products").select("id",{count:"exact",head:true}).eq("active",true);
-  const offsets=Array.from({length:Math.max(1,Math.ceil((count||0)/1000))},(_,i)=>i*1000);
-  const pages=await Promise.all(offsets.map(from=>sb.from("products").select("*").eq("active",true).order("synced_at",{ascending:false}).order("id",{ascending:true}).range(from,from+999)));
-  const data=[...new Map(pages.flatMap(({data})=>data||[]).map(product=>[product.id,product])).values()];
-  const pricing=await getPricingContext(store.id);
-  return <Storefront initialItems={priceCatalogue(data,pricing)} store={publicStoreConfig(store)}/>;
+export const metadata = {
+  title: "GiftingGuru | Smart gifts and tech, delivered across South Africa",
+  description: "Shop gifts, tech and home essentials with nationwide delivery. Free delivery over R1 500, plus free reminders for the dates that matter.",
+  alternates: { canonical: "https://www.giftingguru.co.za/" },
+  openGraph: {
+    type: "website",
+    url: "https://www.giftingguru.co.za/",
+    siteName: "GiftingGuru",
+    title: "GiftingGuru | Smart gifts. Great finds.",
+    description: "Gifts, tech and home essentials delivered across South Africa. Free delivery over R1 500.",
+    images: [{ url: "https://www.giftingguru.co.za/reference-hero.webp" }],
+    locale: "en_ZA",
+  },
+  twitter: { card: "summary_large_image" },
+};
+
+export default async function Home() {
+  const store = await getCurrentStore();
+  const items = await getPublicCatalogue(store.id);
+  return <Storefront initialItems={items} store={publicStoreConfig(store)} />;
 }

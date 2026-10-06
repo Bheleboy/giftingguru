@@ -1,3 +1,5 @@
+export const revalidate = 3600;
+
 import { getMerchantProducts, productUrl, SITE_URL } from "./lib/catalog";
 
 export default async function sitemap() {

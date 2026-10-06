@@ -2276,3 +2276,8 @@ body {
 .cartquantity button { min-width: 30px; min-height: 30px; border: 1px solid #d8dce0; border-radius: 6px; background: #fff; color: #1b1b1b; font-weight: 700; }
 .cartquantity button:hover { background: #f2f6f8; }
 .cartquantity .cartremove { border: 0; color: #a42132; text-decoration: underline; padding: 0 4px; }
+
+/* Product modal: share + permanent link */
+.sharerow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.sharelink { background: transparent; border: 1px solid #d0d5dd; border-radius: 8px; padding: 10px 14px; font-weight: 700; color: #111827; cursor: pointer; text-decoration: none; font-size: 14px; }
+.sharelink:hover { background: #f3f4f6; }

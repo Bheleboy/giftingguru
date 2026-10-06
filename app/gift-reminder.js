@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { track } from "./lib/analytics";
 
 const supabase = createClient(
   "https://xvzupsflasjdejgkcgrt.supabase.co",
@@ -113,6 +114,12 @@ export default function GiftReminder({ landing = false }) {
       }));
       const { error: reminderError } = await supabase.from("gift_reminders").insert(rows);
       if (reminderError) throw reminderError;
+      track("reminder_signup", { value: rows.length });
+      // Confirmation email listing what was saved (sent server-side).
+      supabase.auth.getSession().then(({ data }) => {
+        const token = data?.session?.access_token;
+        if (token) fetch("/api/reminders/confirm", { method: "POST", headers: { authorization: "Bearer " + token } }).catch(() => {});
+      });
       localStorage.removeItem("gg-reminder-pending");
       localStorage.setItem("gg-reminder-prompted", "saved");
       setMessage("Your free reminders are active.");
