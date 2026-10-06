@@ -51,6 +51,17 @@ function Brand({ logoUrl = "/giftingguru-logo.png", name = "Gifting Guru" }) {
     <img className="brandlogo" src={logoUrl} alt={name} />
   );
 }
+// Every word in the query must appear somewhere in the product (any order).
+function matchesSearch(product, query) {
+  const words = String(query || "").toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return true;
+  const haystack = [product.name, product.sku, product.brand, product.category_path, product.description]
+    .join(" ")
+    .toLowerCase()
+    .replace(/[-_/]/g, " ");
+  return words.every((word) => haystack.includes(word.replace(/[-_/]/g, " ")));
+}
+
 export default function Storefront({ initialItems = [], store }) {
   const [items, setItems] = useState(() => [...new Map(initialItems.map((product) => [product.id, product])).values()]),
     [q, setQ] = useState(""),
@@ -95,11 +106,7 @@ export default function Storefront({ initialItems = [], store }) {
     const filtered = items.filter(
       (x) =>
         (cat === "All" || (x.category_path || "").includes(cat)) &&
-        (!deferredQ ||
-          [x.name, x.sku, x.brand, x.description]
-            .join(" ")
-            .toLowerCase()
-            .includes(deferredQ.toLowerCase())),
+        matchesSearch(x, deferredQ),
     );
     return filtered.sort((a, b) =>
       sort === "price-low"
@@ -217,14 +224,24 @@ export default function Storefront({ initialItems = [], store }) {
       <header className="head">
         <div className="headin">
           <Brand logoUrl={store?.branding?.logoUrl} name={store?.name} />
-          <div className="search">
+          <form
+            className="search"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setCat("All");
+              document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
             <input
+              type="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search gifts, tech, home, brands and SKUs..."
+              aria-label="Search products"
             />
-            <button>⌕</button>
-          </div>
+            <button type="submit" aria-label="Search">⌕</button>
+          </form>
           <div className="actions">
             <button className="account">
               ♙ <span>Sign In</span>
@@ -401,7 +418,7 @@ export default function Storefront({ initialItems = [], store }) {
       </section>
       <section className="section" id="shop">
         <div className="sectionhead">
-          <h2>{cat === "All" ? "Fresh finds" : cat.replaceAll("-", " ")}</h2>
+          <h2>{q ? `Results for "${q}"` : cat === "All" ? "Fresh finds" : cat.replaceAll("-", " ")}</h2>
           <div className="shopcontrols">
             <span>{shown.length} products</span>
             <label>
@@ -417,7 +434,7 @@ export default function Storefront({ initialItems = [], store }) {
         </div>
         {shown.length ? (
           <div className="grid">
-            {(q || cat !== "All" ? shown : shown.slice(0, 18)).map((p) => {
+            {(q ? shown.slice(0, 120) : cat !== "All" ? shown : shown.slice(0, 18)).map((p) => {
               const price = sell(p, store),
                 soh = Number(p.stock_qty || 0);
               return (
