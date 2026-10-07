@@ -563,7 +563,34 @@ export default function Storefront({ initialItems = [], store }) {
               <a href="/privacy">Privacy Policy</a>
             </p>
           </div>
+          {store?.branding?.instagramUrl || store?.branding?.facebookUrl ? (
+            <div>
+              <h4>Follow us</h4>
+              {store.branding.instagramUrl ? (
+                <p>
+                  <a href={store.branding.instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="GiftingGuru on Instagram">Instagram</a>
+                </p>
+              ) : null}
+              {store.branding.facebookUrl ? (
+                <p>
+                  <a href={store.branding.facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="GiftingGuru on Facebook">Facebook</a>
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </div>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "GiftingGuru",
+            url: "https://www.giftingguru.co.za",
+            logo: "https://www.giftingguru.co.za/giftingguru-logo.png",
+            email: store?.branding?.supportEmail || "hello@giftingguru.co.za",
+            sameAs: [store?.branding?.instagramUrl, store?.branding?.facebookUrl].filter(Boolean),
+          }).replaceAll("<", "\\u003c") }}
+        />
       </footer>
       {detail && (
         <div className="modal" onClick={closeDetail}>

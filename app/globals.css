@@ -398,7 +398,7 @@ a {
   margin: auto;
   padding: 38px 24px;
   display: grid;
-  grid-template-columns: 2fr repeat(3, 1fr);
+  grid-template-columns: 2fr repeat(4, 1fr);
   gap: 30px;
   font-size: 13px;
   color: #666;
