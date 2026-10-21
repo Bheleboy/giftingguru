@@ -2,7 +2,17 @@ import "server-only";
 
 import { cache } from "react";
 import { calculateRetailPrice, createServerClient, getPricingContext } from "./pricing";
-import { withContent } from "./product-content";
+import { isHidden, withContent } from "./product-content";
+
+// A product is only sellable if SMD confirmed its stock recently. The sync runs
+// every 30 minutes, so anything not refreshed for this long has dropped out of
+// SMD's feed or its sync is failing, and its stock figure can't be trusted.
+export const STALE_AFTER_HOURS = 3;
+
+export function isStale(syncedAt, now = Date.now()) {
+  const t = syncedAt ? Date.parse(syncedAt) : NaN;
+  return !Number.isFinite(t) || now - t > STALE_AFTER_HOURS * 60 * 60 * 1000;
+}
 
 // The ONLY product fields that may leave the server. Wholesale cost, markup,
 // supplier ids/urls and raw supplier data stay in the database and admin views.
@@ -28,7 +38,7 @@ function toPublic(product, context) {
   for (const field of PUBLIC_PRODUCT_FIELDS) out[field] = product[field] ?? null;
   out.stock_qty = stock;
   out.retail_price = retail;
-  out.available = Boolean(product.active && retail && stock > 0 && override?.enabled !== false);
+  out.available = Boolean(product.active && retail && stock > 0 && override?.enabled !== false && !isStale(product.synced_at) && !isHidden(product.sku));
   return withContent(out);
 }
 
@@ -54,7 +64,7 @@ async function fetchActive(db) {
 export const getPublicCatalogue = cache(async (storeId) => {
   const db = createServerClient();
   const [rows, context] = await Promise.all([fetchActive(db), storeContext(storeId)]);
-  return rows.map((row) => toPublic(row, context)).filter((p) => p.retail_price);
+  return rows.filter((row) => !isHidden(row.sku)).map((row) => toPublic(row, context)).filter((p) => p.retail_price);
 });
 
 // One product by SKU, including inactive ones so old links can explain what happened.
@@ -67,7 +77,7 @@ export const getPublicProduct = cache(async (sku, storeId) => {
   if (error) throw error;
   if (!data) return null;
   const product = toPublic(data, context);
-  product.active = Boolean(data.active);
+  product.active = Boolean(data.active) && !isHidden(data.sku);
   return product;
 });
 
@@ -80,7 +90,7 @@ export async function getAlternatives(product, storeId, limit = 4) {
       .gt("stock_qty", 0).neq("sku", product.sku).order("stock_qty", { ascending: false }).limit(limit * 3),
     storeContext(storeId),
   ]);
-  return (data || []).map((row) => toPublic(row, context)).filter((p) => p.available).slice(0, limit);
+  return (data || []).filter((row) => !isHidden(row.sku)).map((row) => toPublic(row, context)).filter((p) => p.available).slice(0, limit);
 }
 
 // Products eligible for Google Shopping / sitemap (physical, purchasable).

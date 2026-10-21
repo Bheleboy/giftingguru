@@ -116,12 +116,12 @@ export default async function ProductPage({ params }) {
         <section>
           <div style={{color:"#6b7280",fontSize:14,marginBottom:10}}>{brandHub ? <><Link href={`/brands/${brandHub.slug}`} style={{color:"#00a8e8",fontWeight:700}}>{brandHub.label}</Link> · </> : null}SKU {product.sku}</div>
           <h1 style={{fontSize:"clamp(28px,4vw,46px)",lineHeight:1.08,margin:"0 0 20px",color:"#111827"}}>{product.name}</h1>
-          {price ? <div style={{fontSize:34,fontWeight:800,color:"#111827",marginBottom:12}}>{rands(price)}</div> : null}
+          {price && product.active ? <div style={{fontSize:34,fontWeight:800,color:"#111827",marginBottom:12}}>{rands(price)}</div> : null}
           {product.available ? (
             <div style={{fontWeight:700,color:"#159947",marginBottom:20}}>{stock < 10 ? `Only ${stock} left` : "In stock"} · Delivery R120, free over R1 500</div>
           ) : (
             <div style={{margin:"0 0 20px",padding:16,borderRadius:12,background:"#fff7ed",color:"#9a3412",fontWeight:600}}>
-              {product.active ? "This product is currently out of stock." : "This product is no longer available."} Have a look at the similar products below.
+              {product.hidden_reason ? <>{product.hidden_reason}{product.replacement_sku ? <> <Link href={`/products/${encodeURIComponent(product.replacement_sku)}`} style={{color:"#9a3412",textDecoration:"underline"}}>See the replacement</Link></> : null}</> : <>{product.active ? "This product is currently out of stock." : "This product is no longer available."} Have a look at the similar products below.</>}
             </div>
           )}
           {product.best_for ? <p style={{margin:"0 0 14px",padding:"12px 14px",borderRadius:10,background:"#fff8d6",color:"#111827",lineHeight:1.5}}><strong>Best for:</strong> {product.best_for}</p> : null}

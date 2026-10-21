@@ -13,6 +13,12 @@ const TAPO_COMMON_VOICE = "Alexa and Google Home";
 
 export const PRODUCT_CONTENT = {
   "TAPO-RV20": {
+    // Hidden: SMD's cost for this older vacuum-only model is higher than the
+    // better RV20 Max (R2 781.91 vs R2 340.91 ex VAT, Oct 2026), so it would
+    // always sell for more than a model that beats it on every spec.
+    hidden: true,
+    hiddenReason: "Replaced by the Tapo RV20 Max, which has stronger suction, mopping and a lower price.",
+    replacement: "Tapo-RV20-Max",
     name: "TP-Link Tapo RV20 LiDAR Robot Vacuum",
     brand: "TP-Link",
     group: "tapo-robot-vacuums",
@@ -105,7 +111,7 @@ export const PRODUCT_CONTENT = {
 export const COMPARE_GROUPS = {
   "tapo-robot-vacuums": {
     title: "Compare Tapo robot vacuums",
-    skus: ["TAPO-RV20", "Tapo-RV20-Max", "Tapo-RV20-Max-Plus", "TAPO-RV30-MAX-WHITE"],
+    skus: ["Tapo-RV20-Max", "Tapo-RV20-Max-Plus", "TAPO-RV30-MAX-WHITE"],
     rows: [
       ["suction", "Suction"],
       ["mopping", "Mopping"],
@@ -132,6 +138,11 @@ export const SPEC_LABELS = {
   voice: "Voice control",
 };
 
+// Products we never sell, whatever the supplier feed says (stock, price, active).
+export function isHidden(sku) {
+  return Boolean(PRODUCT_CONTENT[sku]?.hidden);
+}
+
 export function contentFor(sku) {
   return PRODUCT_CONTENT[sku] || null;
 }
@@ -148,6 +159,8 @@ export function withContent(product) {
     best_for: c.bestFor || null,
     specs: c.specs ? Object.entries(c.specs).map(([key, value]) => [SPEC_LABELS[key] || key, value]) : null,
     oem_url: c.oemUrl || null,
-    compare_group: c.group || null,
+    compare_group: c.hidden ? null : c.group || null,
+    hidden_reason: c.hidden ? c.hiddenReason || null : null,
+    replacement_sku: c.hidden ? c.replacement || null : null,
   };
 }

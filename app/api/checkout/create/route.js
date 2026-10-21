@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentStore } from "../../../lib/store";
 import { calculateRetailPrice, createServerClient, getPricingContext } from "../../../lib/pricing";
+import { isStale } from "../../../lib/public-catalog";
+import { isHidden } from "../../../lib/product-content";
 import { createPaymentLink, ensureStitchSetup, stitchConfigured } from "../../../lib/stitch";
 
 export const runtime = "nodejs";
@@ -66,11 +68,11 @@ export async function POST(request) {
     const db = createServerClient();
     const { data: products, error: productError } = await db
       .from("products")
-      .select("id,sku,name,brand,category_path,wholesale_price,stock_qty,active")
+      .select("id,sku,name,brand,category_path,wholesale_price,stock_qty,active,synced_at")
       .in("id", ids)
       .eq("active", true);
     if (productError) throw productError;
-    if (!products || products.length !== ids.length) {
+    if (!products || products.length !== ids.length || products.some((p) => isHidden(p.sku) || isStale(p.synced_at))) {
       return NextResponse.json({ error: "One or more products are no longer available." }, { status: 409 });
     }
 
