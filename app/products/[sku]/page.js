@@ -24,9 +24,10 @@ export async function generateMetadata({ params }) {
   const url = `${SITE_URL}/products/${encodeURIComponent(product.sku)}`;
   const price = product.retail_price ? `R ${product.retail_price.toLocaleString("en-ZA")}` : "";
   const brand = brandOf(product);
-  const lead = `Buy the ${product.name}${price ? " for " + price : ""} online at Gifting Guru${brand ? `, your ${brand} stockist` : ""}. Delivery across South Africa, free over R1 500.`;
+  const lead = `Buy the ${product.name}${price ? " for " + price : ""} at Gifting Guru${brand ? `, your ${brand} stockist` : ""}. Delivery across South Africa, free over R1 500.`;
   const own = plain(product.description, 300);
-  const description = (own && own.toLowerCase() !== String(product.name).toLowerCase() ? `${own.slice(0, 150)} ${price ? price + "." : ""}` : lead).trim().slice(0, 160);
+  const raw = own && own.toLowerCase() !== String(product.name).toLowerCase() ? `${own}${price ? " " + price + " at Gifting Guru." : ""}` : lead;
+  const description = raw.length <= 160 ? raw : raw.slice(0, 157).replace(/\s+\S*$/, "") + "...";
   const images = product.image_urls?.length ? product.image_urls.slice(0, 1).map((src) => ({ url: largeImage(src), width: 800, height: 800, alt: product.name })) : [{ url: `${SITE_URL}/reference-hero.webp` }];
   return {
     title: `${product.name}${price ? " | " + price : ""} | Gifting Guru South Africa`,
