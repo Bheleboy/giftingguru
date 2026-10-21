@@ -2,6 +2,7 @@ import Storefront from "./storefront";
 import { getCurrentStore, publicStoreConfig } from "./lib/store";
 import { getPublicCatalogue } from "./lib/public-catalog";
 import { getCatalogueIndex } from "./lib/seo";
+import { firstPaint } from "./lib/first-paint";
 
 export const revalidate = 300;
 
@@ -28,5 +29,7 @@ export default async function Home() {
     categories: index.categories.map(({ slug, label }) => ({ slug, label })),
     brands: index.brands.slice(0, 16).map(({ slug, label }) => ({ slug, label })),
   };
-  return <Storefront initialItems={items} store={publicStoreConfig(store)} browse={browse} />;
+  const config = publicStoreConfig(store);
+  const first = firstPaint(items, config);
+  return <Storefront initialItems={first.items} categories={first.categories} catalogueTotal={first.total} store={config} browse={browse} />;
 }

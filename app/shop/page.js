@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Crumbs, HubFooter, HubHeader, TileList } from "../components/hub";
 import { breadcrumbLd, getCatalogueIndex, jsonLd, SITE_URL } from "../lib/seo";
+import { groupDigits } from "../lib/money";
 
 // Render on request (the catalogue index is data-cached), not at build time.
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ export default async function ShopIndex() {
     <main className="hubmain">
       <Crumbs trail={trail} />
       <h1>Shop by category</h1>
-      <p className="hublead">{items.length.toLocaleString("en-ZA")} gifts, gadgets and home essentials across {categories.length} categories, delivered anywhere in South Africa.</p>
+      <p className="hublead">{groupDigits(items.length)} gifts, gadgets and home essentials across {categories.length} categories, delivered anywhere in South Africa.</p>
       <TileList tiles={categories} base="/shop" />
       <h2>Popular brands</h2>
       <div className="hubchips">

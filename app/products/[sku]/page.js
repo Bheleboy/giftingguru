@@ -4,6 +4,7 @@ import { getAlternatives, getPublicProduct, SITE_URL } from "../../lib/public-ca
 import ProductActions from "./product-actions";
 import Link from "next/link";
 import { brandOf, breadcrumbLd, categoryLabel, categorySlug, getCatalogueIndex, jsonLd as ld, largeImage, OFFER_EXTRAS, productIntro, slugify } from "../../lib/seo";
+import { rands } from "../../lib/money";
 
 export const revalidate = 300;
 
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }) {
   const { product } = await load(params);
   if (!product) return { title: "Product not found | GiftingGuru", robots: { index: false } };
   const url = `${SITE_URL}/products/${encodeURIComponent(product.sku)}`;
-  const price = product.retail_price ? `R ${product.retail_price.toLocaleString("en-ZA")}` : "";
+  const price = product.retail_price ? `${rands(product.retail_price)}` : "";
   const brand = brandOf(product);
   const lead = `Buy the ${product.name}${price ? " for " + price : ""} at Gifting Guru${brand ? `, your ${brand} stockist` : ""}. Delivery across South Africa, free over R1 500.`;
   const own = plain(product.description, 300);
@@ -108,7 +109,7 @@ export default async function ProductPage({ params }) {
         <section>
           <div style={{color:"#6b7280",fontSize:14,marginBottom:10}}>{brandHub ? <><Link href={`/brands/${brandHub.slug}`} style={{color:"#00a8e8",fontWeight:700}}>{brandHub.label}</Link> · </> : null}SKU {product.sku}</div>
           <h1 style={{fontSize:"clamp(28px,4vw,46px)",lineHeight:1.08,margin:"0 0 20px",color:"#111827"}}>{product.name}</h1>
-          {price ? <div style={{fontSize:34,fontWeight:800,color:"#111827",marginBottom:12}}>R {price.toLocaleString("en-ZA")}</div> : null}
+          {price ? <div style={{fontSize:34,fontWeight:800,color:"#111827",marginBottom:12}}>{rands(price)}</div> : null}
           {product.available ? (
             <div style={{fontWeight:700,color:"#159947",marginBottom:20}}>{stock < 10 ? `Only ${stock} left` : "In stock"} · Delivery R120, free over R1 500</div>
           ) : (
@@ -133,7 +134,7 @@ export default async function ProductPage({ params }) {
               <a key={alt.id} href={`/products/${encodeURIComponent(alt.sku)}`} style={{border:"1px solid #e5e7eb",borderRadius:12,padding:14,color:"#111827",textDecoration:"none",background:"#fff"}}>
                 {alt.image_urls?.[0] ? <img src={alt.image_urls[0]} alt={alt.name} style={{width:"100%",height:150,objectFit:"contain"}} /> : null}
                 <div style={{fontWeight:700,margin:"10px 0 6px",lineHeight:1.3}}>{alt.name}</div>
-                <div style={{fontWeight:800}}>R {alt.retail_price.toLocaleString("en-ZA")}</div>
+                <div style={{fontWeight:800}}>{rands(alt.retail_price)}</div>
               </a>
             ))}
           </div>
@@ -148,7 +149,7 @@ export default async function ProductPage({ params }) {
                 <Link href={`/products/${encodeURIComponent(p.sku)}`} className="hubcard">
                   <span className="hubpic">{p.image_urls?.[0] ? <img src={p.image_urls[0]} alt={p.name} loading="lazy" /> : null}</span>
                   <span className="hubname">{p.name}</span>
-                  <span className="hubprice">R {p.retail_price.toLocaleString("en-ZA")}</span>
+                  <span className="hubprice">{rands(p.retail_price)}</span>
                 </Link>
               </li>
             ))}

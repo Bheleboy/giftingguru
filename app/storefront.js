@@ -2,45 +2,11 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import GiftReminder from "./gift-reminder";
 import { captureAttribution, getAttribution, track } from "./lib/analytics";
+import { popularityScore } from "./lib/popularity";
+import { rands } from "./lib/money";
 // Retail price is calculated on the server; the browser never receives cost or markup data.
 const sell = (p) => p.retail_price ?? null;
 const isAvailable = (p) => p.available ?? (Boolean(p.retail_price) && Number(p.stock_qty || 0) > 0);
-const demandSignals = [
-  [/(true wireless|tws|earbud)/i, 120],
-  [/(bluetooth.*headphone|wireless.*headphone)/i, 110],
-  [/(power bank|10000mah|20000mah)/i, 105],
-  [/(fast charger|wall charger|usb-c charger|type-c charger)/i, 95],
-  [/(bluetooth speaker|portable speaker)/i, 90],
-  [/(smart watch|smartwatch|fitness watch)/i, 88],
-  [/(gaming|gamepad|controller)/i, 78],
-  [/(router|wi-fi|wifi|mesh)/i, 74],
-  [/(laptop bag|backpack|computer accessory)/i, 65],
-  [/(air fryer|kitchen appliance)/i, 62],
-  [/(security camera|smart home)/i, 58],
-  [/(kids|school|education)/i, 42],
-];
-const heroSkus = new Set([
-  "VK-2002-BK",
-  "VK-9021-BK",
-  "VK-1158-WT",
-  "VK-3453-BK[V2]",
-  "VK-5018-GN",
-  "VK-8063-WT",
-]);
-function popularityScore(p, store) {
-  const text = [p.name, p.brand, p.category_path, p.description].join(" ");
-  let score = 0;
-  for (const [pattern, weight] of demandSignals)
-    if (pattern.test(text)) score += weight;
-  const stock = Number(p.stock_qty || 0),
-    price = sell(p) || 0;
-  if (stock > 0) score += 25;
-  if (stock > 20) score += Math.min(25, Math.log10(stock + 1) * 10);
-  if (price >= 150 && price <= 1500) score += 18;
-  if (/volkano|amplify|switched|tp-link|eiger|rocka/i.test(text)) score += 15;
-  if (heroSkus.has(p.sku)) score += 80;
-  return score;
-}
 function Brand({ logoUrl = "/giftingguru-logo.png", name = "Gifting Guru" }) {
   return (
     <img className="brandlogo" src={logoUrl} alt={name} />
@@ -57,7 +23,7 @@ function matchesSearch(product, query) {
   return words.every((word) => haystack.includes(word.replace(/[-_/]/g, " ")));
 }
 
-export default function Storefront({ initialItems = [], store, browse }) {
+export default function Storefront({ initialItems = [], categories = null, catalogueTotal = 0, store, browse }) {
   const [items, setItems] = useState(() => [...new Map(initialItems.map((product) => [product.id, product])).values()]),
     [q, setQ] = useState(""),
     [cat, setCat] = useState("All"),
@@ -70,9 +36,29 @@ export default function Storefront({ initialItems = [], store, browse }) {
     [orderResult, setOrderResult] = useState(null),
     [detail, setDetail] = useState(null),
     [photo, setPhoto] = useState(0),
-    [shareNote, setShareNote] = useState("");
+    [shareNote, setShareNote] = useState(""),
+    [fullLoaded, setFullLoaded] = useState(!catalogueTotal || initialItems.length >= catalogueTotal),
+    [catalogueOk, setCatalogueOk] = useState(!catalogueTotal || initialItems.length >= catalogueTotal);
+  // The page ships a small first-paint slice; the full catalogue loads straight after.
   useEffect(() => {
     captureAttribution();
+    if (fullLoaded) return;
+    let cancelled = false;
+    fetch("/api/storefront/catalogue")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("catalogue " + r.status))))
+      .then((data) => {
+        if (cancelled || !Array.isArray(data.items)) return;
+        setItems([...new Map(data.items.map((product) => [product.id, product])).values()]);
+        setCatalogueOk(true);
+        setFullLoaded(true);
+      })
+      .catch(() => { if (!cancelled) setFullLoaded(true); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // Cart restore and deep links need the full catalogue, so they run once it is in.
+  useEffect(() => {
+    if (!fullLoaded) return;
     // Restore the cart, refreshing prices and dropping items that are no longer available.
     let saved = [];
     try {
@@ -81,7 +67,8 @@ export default function Storefront({ initialItems = [], store, browse }) {
     const byId = new Map(items.map((p) => [p.id, p]));
     let restored = saved.flatMap((item) => {
       const live = byId.get(item.id);
-      if (items.length && (!live || !isAvailable(live))) return [];
+      // Only drop saved lines when the full catalogue loaded and confirms they are gone.
+      if (catalogueOk && items.length && (!live || !isAvailable(live))) return [];
       return [live ? { ...item, sku: live.sku, price: sell(live), qty: Math.min(item.qty, Math.max(1, Number(live.stock_qty || 1))) } : item];
     });
     // Deep links: ?q=search  ?p=SKU (open product)  ?add=SKU (add to cart)
@@ -99,19 +86,21 @@ export default function Storefront({ initialItems = [], store, browse }) {
       params.delete("add");
       window.history.replaceState(null, "", window.location.pathname + (params.toString() ? "?" + params : "") + window.location.hash);
     }
-    setCart(restored);
+    // Keep anything added while the full catalogue was still loading.
+    setCart((current) => [...restored, ...current.filter((x) => !restored.some((r) => r.id === x.id))]);
     const openSku = bySku(params.get("p"));
     if (openSku) {
       setDetail(openSku);
       track("view_item", { sku: openSku.sku, name: openSku.name, value: sell(openSku), price: sell(openSku) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fullLoaded]);
   useEffect(() => {
+    if (!fullLoaded) return;
     localStorage.setItem("ggcart", JSON.stringify(cart));
-  }, [cart]);
+  }, [cart, fullLoaded]);
   const cats = useMemo(
-    () => [
+    () => categories?.length ? ["All", ...categories] : [
       "All",
       ...new Set(
         items
@@ -119,7 +108,7 @@ export default function Storefront({ initialItems = [], store, browse }) {
           .filter(Boolean),
       ),
     ],
-    [items],
+    [items, categories],
   );
   const deferredQ = useDeferredValue(q);
   const shown = useMemo(() => {
@@ -427,7 +416,7 @@ export default function Storefront({ initialItems = [], store, browse }) {
                 )}
                 <div>
                   <a href={`/products/${encodeURIComponent(p.sku)}`} onClick={(e) => { if (!e.metaKey && !e.ctrlKey) e.preventDefault(); }}><span>{p.name}</span></a>
-                  <b>R {sell(p)?.toLocaleString("en-ZA")}</b>
+                  <b>{rands(sell(p))}</b>
                 </div>
               </article>
             ))}
@@ -460,7 +449,7 @@ export default function Storefront({ initialItems = [], store, browse }) {
         <div className="sectionhead">
           <h2>{q ? `Results for "${q}"` : cat === "All" ? "Fresh finds" : cat.replaceAll("-", " ")}</h2>
           <div className="shopcontrols">
-            <span>{shown.length} products</span>
+            <span>{fullLoaded ? `${shown.length} products` : "Loading all products..."}</span>
             <label>
               Sort{" "}
               <select value={sort} onChange={(e) => setSort(e.target.value)}>
@@ -492,7 +481,7 @@ export default function Storefront({ initialItems = [], store, browse }) {
                     <a className="title" href={`/products/${encodeURIComponent(p.sku)}`} onClick={(e) => { if (!e.metaKey && !e.ctrlKey) e.preventDefault(); }}>{p.name}</a>
                     <div className="price">
                       {price
-                        ? "R " + price.toLocaleString("en-ZA")
+                        ? rands(price)
                         : "Price updating"}
                     </div>
                     <div className={"stock " + (soh < 10 ? "low" : "")}>
@@ -632,7 +621,7 @@ export default function Storefront({ initialItems = [], store, browse }) {
               <h1>{detail.name}</h1>
               <div className="detailSku">SKU {detail.sku}</div>
               <div className="detailPrice">
-                R {sell(detail)?.toLocaleString("en-ZA")}
+                {rands(sell(detail))}
               </div>
               <div className="detailStock">
                 {isAvailable(detail)
@@ -687,27 +676,27 @@ export default function Storefront({ initialItems = [], store, browse }) {
                     <button type="button" className="cartremove" onClick={() => changeQuantity(x.id, 0)}>Remove</button>
                   </div>
                 </div>
-                <b>R {(x.price * x.qty).toLocaleString("en-ZA")}</b>
+                <b>{rands(x.price * x.qty)}</b>
               </div>
             ))}
             {cart.length === 0 && <p>Your cart is empty.</p>}
             {cart.length > 0 && (
               <div className="shippingnotice">
                 {freeDeliveryGap > 0
-                  ? `Add R ${freeDeliveryGap.toLocaleString("en-ZA")} more for free delivery.`
+                  ? `Add ${rands(freeDeliveryGap)} more for free delivery.`
                   : "You qualify for free nationwide delivery."}
               </div>
             )}
             <div className="cartsummary">
               <div>
                 <span>Subtotal</span>
-                <span>R {subtotal.toLocaleString("en-ZA")}</span>
+                <span>{rands(subtotal)}</span>
               </div>
               <div>
                 <span>Delivery</span>
                 <span>
                   {shipping
-                    ? `R ${shipping.toLocaleString("en-ZA")}`
+                    ? `${rands(shipping)}`
                     : cart.length
                       ? "FREE"
                       : "R 0"}
@@ -716,7 +705,7 @@ export default function Storefront({ initialItems = [], store, browse }) {
             </div>
             <div className="total">
               <span>Total</span>
-              <span>R {total.toLocaleString("en-ZA")}</span>
+              <span>{rands(total)}</span>
             </div>
             <button className="checkout" disabled={!cart.length} onClick={() => { setOpen(false); setCheckoutOpen(true); track("begin_checkout", { value: total, skus: cart.map((x) => x.sku).filter(Boolean) }); }}>
               Checkout
@@ -734,7 +723,7 @@ export default function Storefront({ initialItems = [], store, browse }) {
                 <h2>Order request received</h2>
                 <p>Your reference is <b>{orderResult.order.order_number}</b>.</p>
                 <p>Secure online payment is being activated. No payment has been taken and the order will not be sent to the supplier until payment is confirmed.</p>
-                <div className="checkouttotals"><span>Total</span><b>R {Number(orderResult.order.total).toLocaleString("en-ZA")}</b></div>
+                <div className="checkouttotals"><span>Total</span><b>{rands(Number(orderResult.order.total))}</b></div>
                 <button className="checkout" onClick={() => { setCheckoutOpen(false); setOrderResult(null); }}>Continue shopping</button>
               </div>
             ) : (
@@ -757,7 +746,7 @@ export default function Storefront({ initialItems = [], store, browse }) {
                   <label>Province<select name="province" required defaultValue=""><option value="" disabled>Select province</option><option>Eastern Cape</option><option>Free State</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option><option>North West</option><option>Northern Cape</option><option>Western Cape</option></select></label>
                   <label>Postal code<input name="postalCode" required inputMode="numeric" autoComplete="postal-code" /></label>
                 </div>
-                <div className="checkouttotals"><span>Subtotal</span><b>R {subtotal.toLocaleString("en-ZA")}</b><span>Nationwide delivery</span><b>{shipping ? `R ${shipping}` : "FREE"}</b><span>Total</span><b>R {total.toLocaleString("en-ZA")}</b></div>
+                <div className="checkouttotals"><span>Subtotal</span><b>{rands(subtotal)}</b><span>Nationwide delivery</span><b>{shipping ? `R ${shipping}` : "FREE"}</b><span>Total</span><b>{rands(total)}</b></div>
                 {checkoutMessage && <div className="checkouterror">{checkoutMessage}</div>}
                 <button className="checkout" disabled={checkoutBusy}>{checkoutBusy ? "Preparing secure payment..." : "Continue to secure payment"}</button>
                 <p className="paymentnotice">You will be taken to Stitch, our secure payment partner, to complete your payment.</p>

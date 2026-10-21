@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Crumbs, HubFooter, HubHeader, ProductGrid } from "../../components/hub";
 import { brandOf, breadcrumbLd, getCatalogueIndex, jsonLd, priceText, productPath, SITE_URL, slugify } from "../../lib/seo";
+import { rands } from "../../lib/money";
 
 // Render on request (the catalogue index is data-cached), not at build time.
 export const dynamic = "force-dynamic";
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }) {
   if (!cat) return { title: "Category not found | GiftingGuru", robots: { index: false } };
   const url = `${SITE_URL}/shop/${cat.slug}`;
   const from = cheapest(cat.items);
-  const description = `Shop ${cat.items.length} ${cat.label.toLowerCase()} products online${from ? ` from R ${from.toLocaleString("en-ZA")}` : ""}. Gift-ready picks with delivery across South Africa, free over R1 500.`;
+  const description = `Shop ${cat.items.length} ${cat.label.toLowerCase()} products online${from ? ` from ${rands(from)}` : ""}. Gift-ready picks with delivery across South Africa, free over R1 500.`;
   return {
     title: `${cat.label} | Buy online in South Africa | Gifting Guru`,
     description,
@@ -60,7 +61,7 @@ export default async function CategoryPage({ params }) {
       <Crumbs trail={trail} />
       <h1>{cat.label}</h1>
       <p className="hublead">
-        {cat.items.length} {cat.label.toLowerCase()} products, {inStock} in stock now{from ? `, from R ${from.toLocaleString("en-ZA")}` : ""}.
+        {cat.items.length} {cat.label.toLowerCase()} products, {inStock} in stock now{from ? `, from ${rands(from)}` : ""}.
         {topBrands.length ? ` Top brands include ${topBrands.slice(0, 4).map(([b]) => b).join(", ")}.` : ""} Flat R120 delivery anywhere in South Africa, free on orders over R1 500.
       </p>
       {topBrands.length > 1 ? (

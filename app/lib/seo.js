@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { getPublicCatalogue, SITE_URL } from "./public-catalog";
+import { rands } from "./money";
 
 export { SITE_URL };
 export const SITE_NAME = "GiftingGuru";
@@ -123,7 +124,7 @@ async function buildIndex() {
 export const getCatalogueIndex = cache(buildIndex);
 
 export function priceText(p) {
-  return p.retail_price ? `R ${Number(p.retail_price).toLocaleString("en-ZA")}` : "";
+  return p.retail_price ? rands(p.retail_price) : "";
 }
 
 export function jsonLd(data) {
