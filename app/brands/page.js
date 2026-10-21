@@ -1,7 +1,8 @@
 import { Crumbs, HubFooter, HubHeader, TileList } from "../components/hub";
 import { breadcrumbLd, getCatalogueIndex, jsonLd, SITE_URL } from "../lib/seo";
 
-export const revalidate = 3600;
+// Render on request (the catalogue index is data-cached), not at build time.
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Shop by brand: Volkano, TP-Link, Creality, Ellies and more | Gifting Guru",

@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { Crumbs, HubFooter, HubHeader, ProductGrid } from "../../components/hub";
 import { breadcrumbLd, categoryLabel, categorySlug, getCatalogueIndex, jsonLd, productPath, SITE_URL } from "../../lib/seo";
 
-export const revalidate = 3600;
+// Render on request (the catalogue index is data-cached), not at build time.
+export const dynamic = "force-dynamic";
 
 async function load(params) {
   const { slug } = await params;

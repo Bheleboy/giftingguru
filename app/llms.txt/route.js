@@ -1,6 +1,6 @@
 import { getCatalogueIndex, SITE_URL } from "../lib/seo";
 
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const { categories, brands, items } = await getCatalogueIndex();

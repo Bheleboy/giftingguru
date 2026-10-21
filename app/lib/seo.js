@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { getPublicCatalogue, SITE_URL } from "./public-catalog";
 
 export { SITE_URL };
@@ -76,9 +77,17 @@ export function categoryLabel(slug) {
 
 export const productPath = (p) => `/products/${encodeURIComponent(p.sku)}`;
 
-// Catalogue grouped by category and brand, in-stock items first.
-export const getCatalogueIndex = cache(async () => {
-  const items = (await getPublicCatalogue()).filter((p) => p.sku && p.name).slice();
+const LITE_FIELDS = ["id", "sku", "name", "brand", "category_path", "retail_price", "available", "stock_qty"];
+
+async function buildIndex() {
+  const rows = (await getPublicCatalogue()).filter((p) => p.sku && p.name);
+  // Only what hubs and related-product rails need, so the cached index stays small.
+  const items = rows.map((p) => {
+    const out = {};
+    for (const k of LITE_FIELDS) out[k] = p[k] ?? null;
+    out.image_urls = p.image_urls?.length ? [p.image_urls[0]] : [];
+    return out;
+  });
   items.sort((a, b) => Number(b.available) - Number(a.available) || Number(b.stock_qty || 0) - Number(a.stock_qty || 0));
   const categories = new Map();
   const brands = new Map();
@@ -102,7 +111,12 @@ export const getCatalogueIndex = cache(async () => {
     // A brand page needs a few products to be worth indexing.
     brands: [...brands.values()].filter((b) => b.items.length >= 3).sort(byCount),
   };
-});
+}
+
+const cachedIndex = unstable_cache(buildIndex, ["catalogue-index-v1"], { revalidate: 3600 });
+
+// Catalogue grouped by category and brand, in-stock items first. Cached for an hour.
+export const getCatalogueIndex = cache(() => cachedIndex());
 
 export function priceText(p) {
   return p.retail_price ? `R ${Number(p.retail_price).toLocaleString("en-ZA")}` : "";

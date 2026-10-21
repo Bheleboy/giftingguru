@@ -1,4 +1,4 @@
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 import { getMerchantProducts, productUrl, SITE_URL } from "./lib/catalog";
 import { getCatalogueIndex } from "./lib/seo";
