@@ -2281,3 +2281,53 @@ body {
 .sharerow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
 .sharelink { background: transparent; border: 1px solid #d0d5dd; border-radius: 8px; padding: 10px 14px; font-weight: 700; color: #111827; cursor: pointer; text-decoration: none; font-size: 14px; }
 .sharelink:hover { background: #f3f4f6; }
+
+/* Browse hubs: category, brand and product cross-links */
+.hubhead { background: #fff; border-bottom: 1px solid #e7e7e8; }
+.hubheadin { max-width: 1200px; margin: 0 auto; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.hubheadin img { width: 180px; max-width: 50vw; height: auto; display: block; }
+.hubheadin nav { display: flex; gap: 20px; font-weight: 700; font-size: 15px; flex-wrap: wrap; }
+.hubheadin nav a:hover { color: #00a8e8; }
+.hubmain { max-width: 1200px; margin: 0 auto; padding: 28px 20px 72px; }
+.hubmain h1 { font-size: clamp(30px, 4.5vw, 48px); line-height: 1.05; margin: 14px 0 14px; color: #252529; letter-spacing: -0.01em; }
+.hubmain h2 { font-size: 24px; margin: 44px 0 16px; color: #252529; }
+.hublead { max-width: 760px; font-size: 17px; line-height: 1.65; color: #555; margin: 0 0 24px; }
+.hubcrumbs { font-size: 13px; color: #777; display: flex; flex-wrap: wrap; gap: 4px; }
+.hubcrumbs a { color: #00a8e8; font-weight: 700; }
+.hubcrumbs .sep { margin: 0 6px; color: #bbb; }
+.hubchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 28px; }
+.hubchips a { background: #fff; border: 1px solid #e4e6e8; border-radius: 999px; padding: 8px 14px; font-size: 14px; font-weight: 700; transition: 0.15s; }
+.hubchips a:hover { border-color: #252529; }
+.hubchips small { color: #999; font-weight: 400; margin-left: 4px; }
+.hubtiles { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.hubtiles a { display: flex; flex-direction: column; gap: 6px; background: #fff; border: 1px solid #e7e7e8; border-radius: 14px; padding: 18px; transition: 0.15s; }
+.hubtiles a:hover { border-color: #252529; transform: translateY(-2px); }
+.hubtiles strong { font-size: 16px; color: #252529; }
+.hubtiles span { font-size: 13px; color: #888; }
+.hubgrid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.hubcard { height: 100%; display: flex; flex-direction: column; gap: 8px; background: #fff; border: 1px solid #e7e7e8; border-radius: 14px; padding: 14px; transition: 0.18s; }
+.hubcard:hover { box-shadow: 0 10px 28px #00000018; transform: translateY(-3px); }
+.hubcard.soldout { opacity: 0.6; }
+.hubpic { height: 160px; display: grid; place-items: center; }
+.hubpic img { width: 100%; height: 100%; object-fit: contain; }
+.hubname { font-size: 13px; line-height: 1.35; color: #26262a; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.hubprice { font-size: 17px; font-weight: 900; margin-top: auto; color: #252529; }
+.hubstock { font-size: 11px; color: #21865d; }
+.hubcard.soldout .hubstock { color: #f31246; }
+.hubfoot { background: #252529; color: #ddd; }
+.hubfootin { max-width: 1200px; margin: 0 auto; padding: 28px 20px; display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; font-size: 14px; line-height: 1.6; }
+.hubfootin p { margin: 0; max-width: 560px; }
+.hubfootin nav { display: flex; gap: 18px; font-weight: 700; }
+.foot .seolinks { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; }
+@media (max-width: 600px) {
+  .hubgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .hubpic { height: 120px; }
+  .hubheadin nav { gap: 14px; font-size: 14px; }
+}
+.footbrowse { max-width: 1280px; margin: 0 auto; padding: 32px 24px 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; border-bottom: 1px solid #e7e7e8; }
+.footbrowse h4 { margin: 0 0 10px; }
+.footbrowse .seolinks a { opacity: 0.85; }
+.footbrowse .seolinks a:hover { opacity: 1; }
+@media (max-width: 760px) { .footbrowse { grid-template-columns: 1fr; } }
+a.title { display: block; color: inherit; }
+.showcard a { color: inherit; }

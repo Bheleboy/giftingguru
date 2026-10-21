@@ -57,7 +57,7 @@ function matchesSearch(product, query) {
   return words.every((word) => haystack.includes(word.replace(/[-_/]/g, " ")));
 }
 
-export default function Storefront({ initialItems = [], store }) {
+export default function Storefront({ initialItems = [], store, browse }) {
   const [items, setItems] = useState(() => [...new Map(initialItems.map((product) => [product.id, product])).values()]),
     [q, setQ] = useState(""),
     [cat, setCat] = useState("All"),
@@ -426,7 +426,7 @@ export default function Storefront({ initialItems = [], store }) {
                   <img src={p.image_urls[0]} alt={p.name} />
                 )}
                 <div>
-                  <span>{p.name}</span>
+                  <a href={`/products/${encodeURIComponent(p.sku)}`} onClick={(e) => { if (!e.metaKey && !e.ctrlKey) e.preventDefault(); }}><span>{p.name}</span></a>
                   <b>R {sell(p)?.toLocaleString("en-ZA")}</b>
                 </div>
               </article>
@@ -489,7 +489,7 @@ export default function Storefront({ initialItems = [], store }) {
                   </div>
                   <div className="cardbody">
                     <div className="sku">{p.sku}</div>
-                    <div className="title">{p.name}</div>
+                    <a className="title" href={`/products/${encodeURIComponent(p.sku)}`} onClick={(e) => { if (!e.metaKey && !e.ctrlKey) e.preventDefault(); }}>{p.name}</a>
                     <div className="price">
                       {price
                         ? "R " + price.toLocaleString("en-ZA")
@@ -522,6 +522,18 @@ export default function Storefront({ initialItems = [], store }) {
         )}
       </section>
       <footer className="footer">
+        {browse ? (
+          <nav className="footbrowse" aria-label="Browse the shop">
+            <div>
+              <h4>Shop by category</h4>
+              <p className="seolinks">{browse.categories.map((c) => <a key={c.slug} href={`/shop/${c.slug}`}>{c.label}</a>)}</p>
+            </div>
+            <div>
+              <h4>Popular brands</h4>
+              <p className="seolinks">{browse.brands.map((b) => <a key={b.slug} href={`/brands/${b.slug}`}>{b.label}</a>)}<a href="/brands">All brands</a></p>
+            </div>
+          </nav>
+        ) : null}
         <div className="foot">
           <div>
             <Brand />
@@ -530,13 +542,13 @@ export default function Storefront({ initialItems = [], store }) {
           <div>
             <h4>Shop</h4>
             <p>
-              <a href="/#shop">All products</a>
+              <a href="/shop">All products</a>
             </p>
             <p>
-              <a href="/#brands">Brands</a>
+              <a href="/brands">Brands</a>
             </p>
             <p>
-              <a href="/#shop">New arrivals</a>
+              <a href="/gift-reminders">Gift reminders</a>
             </p>
           </div>
           <div>
@@ -579,18 +591,6 @@ export default function Storefront({ initialItems = [], store }) {
             </div>
           ) : null}
         </div>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: "GiftingGuru",
-            url: "https://www.giftingguru.co.za",
-            logo: "https://www.giftingguru.co.za/giftingguru-logo.png",
-            email: store?.branding?.supportEmail || "hello@giftingguru.co.za",
-            sameAs: [store?.branding?.instagramUrl, store?.branding?.facebookUrl].filter(Boolean),
-          }).replaceAll("<", "\\u003c") }}
-        />
       </footer>
       {detail && (
         <div className="modal" onClick={closeDetail}>

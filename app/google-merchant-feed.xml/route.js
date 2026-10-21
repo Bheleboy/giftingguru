@@ -1,4 +1,5 @@
 import { getMerchantProducts, productUrl, retailPrice, SITE_URL } from "../lib/catalog";
+import { largeImage } from "../lib/seo";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -40,7 +41,7 @@ export async function GET() {
       const price = retailPrice(product);
       const availability = product.available ? "in_stock" : "out_of_stock";
       const additionalImages = (product.image_urls || []).slice(1, 11)
-        .map((image) => `<g:additional_image_link>${xml(image)}</g:additional_image_link>`)
+        .map((image) => `<g:additional_image_link>${xml(largeImage(image))}</g:additional_image_link>`)
         .join("");
 
       return `<item>
@@ -48,7 +49,7 @@ export async function GET() {
 <title>${xml(product.name)}</title>
 <description>${xml(cleanDescription(product))}</description>
 <link>${xml(productUrl(product))}</link>
-<g:image_link>${xml(product.image_urls[0])}</g:image_link>
+<g:image_link>${xml(largeImage(product.image_urls[0]))}</g:image_link>
 ${additionalImages}
 <g:availability>${availability}</g:availability>
 <g:price>${price.toFixed(2)} ZAR</g:price>
