@@ -2,6 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import { calculateRetailPrice, createServerClient, getPricingContext } from "./pricing";
+import { withContent } from "./product-content";
 
 // The ONLY product fields that may leave the server. Wholesale cost, markup,
 // supplier ids/urls and raw supplier data stay in the database and admin views.
@@ -28,7 +29,7 @@ function toPublic(product, context) {
   out.stock_qty = stock;
   out.retail_price = retail;
   out.available = Boolean(product.active && retail && stock > 0 && override?.enabled !== false);
-  return out;
+  return withContent(out);
 }
 
 async function storeContext(storeId) {

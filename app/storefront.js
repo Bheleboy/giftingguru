@@ -628,15 +628,30 @@ export default function Storefront({ initialItems = [], categories = null, catal
                   ? detail.stock_qty + " in stock"
                   : "Currently unavailable"}
               </div>
+              {detail.best_for && (
+                <div className="bestfor"><b>Best for:</b> {detail.best_for}</div>
+              )}
               {detail.description && (
                 <div className="description">{detail.description}</div>
               )}
+              {detail.specs?.length ? (
+                <dl className="specs">
+                  {detail.specs.map(([label, value]) => (
+                    <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
+                  ))}
+                </dl>
+              ) : null}
               <div className="detailsbox">
                 <b>Product details</b>
                 <p>
                   Category: {(detail.category_path || "").replaceAll("-", " ")}
                 </p>
-                <p>Stock is synchronized from our supplier catalogue.</p>
+                {detail.compare_group && (
+                  <p><a href={`/products/${encodeURIComponent(detail.sku)}#compare`}>Compare with similar models</a></p>
+                )}
+                {detail.oem_url && (
+                  <p><a href={detail.oem_url} target="_blank" rel="noopener noreferrer">Full specifications from the manufacturer</a></p>
+                )}
               </div>
               <button
                 className="bigadd"

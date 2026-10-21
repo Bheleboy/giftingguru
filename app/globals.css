@@ -631,6 +631,77 @@ a {
   line-height: 1.55;
   margin: 20px 0;
 }
+.bestfor {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff8d6;
+  line-height: 1.45;
+}
+.specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 18px;
+  margin: 0 0 20px;
+  font-size: 14px;
+}
+.specs div {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 8px;
+}
+.specs dt {
+  color: #6b7280;
+  font-size: 12px;
+}
+.specs dd {
+  margin: 2px 0 0;
+  font-weight: 700;
+}
+.comparewrap {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #fff;
+}
+.comparetable {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+}
+.comparetable th,
+.comparetable td {
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+.comparetable thead th {
+  background: #f8fafc;
+}
+.comparetable tbody tr + tr td,
+.comparetable tbody tr + tr th {
+  border-top: 1px solid #eef0f2;
+}
+.comparetable .current {
+  background: #fff8d6;
+}
+.comparetable tbody th {
+  color: #6b7280;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.comparetable tbody th,
+.comparetable thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+  box-shadow: 1px 0 0 #eef0f2;
+}
+.comparetable thead th:first-child {
+  background: #f8fafc;
+}
 .detailsbox {
   background: #f7f7f8;
   border-radius: 12px;
@@ -2331,3 +2402,16 @@ body {
 @media (max-width: 760px) { .footbrowse { grid-template-columns: 1fr; } }
 a.title { display: block; color: inherit; }
 .showcard a { color: inherit; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.detailsbox a {
+  color: #0a84c4;
+  font-weight: 700;
+  text-decoration: underline;
+}

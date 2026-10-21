@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getCurrentStore } from "../../lib/store";
-import { getAlternatives, getPublicProduct, SITE_URL } from "../../lib/public-catalog";
+import { getAlternatives, getPublicCatalogue, getPublicProduct, SITE_URL } from "../../lib/public-catalog";
+import { COMPARE_GROUPS } from "../../lib/product-content";
 import ProductActions from "./product-actions";
 import Link from "next/link";
 import { brandOf, breadcrumbLd, categoryLabel, categorySlug, getCatalogueIndex, jsonLd as ld, largeImage, OFFER_EXTRAS, productIntro, slugify } from "../../lib/seo";
@@ -67,6 +68,12 @@ export default async function ProductPage({ params }) {
   trail.push({ name: product.name, path: `/products/${encodeURIComponent(product.sku)}` });
   const intro = productIntro(product, brandName, catName);
   const alternatives = product.available ? [] : await getAlternatives(product, store?.id);
+  const group = product.compare_group ? COMPARE_GROUPS[product.compare_group] : null;
+  let compare = [];
+  if (group) {
+    const bySku = new Map((await getPublicCatalogue(store?.id)).map((p) => [p.sku, p]));
+    compare = group.skus.map((s) => (s === product.sku ? product : bySku.get(s))).filter(Boolean);
+  }
   const url = `${SITE_URL}/products/${encodeURIComponent(product.sku)}`;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -117,7 +124,14 @@ export default async function ProductPage({ params }) {
               {product.active ? "This product is currently out of stock." : "This product is no longer available."} Have a look at the similar products below.
             </div>
           )}
+          {product.best_for ? <p style={{margin:"0 0 14px",padding:"12px 14px",borderRadius:10,background:"#fff8d6",color:"#111827",lineHeight:1.5}}><strong>Best for:</strong> {product.best_for}</p> : null}
           {product.description && plain(product.description).toLowerCase() !== String(product.name).toLowerCase() ? <p style={{fontSize:17,lineHeight:1.7,color:"#4b5563"}}>{plain(product.description, 1200)}</p> : null}
+          {product.specs?.length ? (
+            <dl className="specs" style={{fontSize:15}}>
+              {product.specs.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+            </dl>
+          ) : null}
+          {product.oem_url ? <p style={{fontSize:14,margin:"0 0 16px"}}><a href={product.oem_url} target="_blank" rel="noopener noreferrer" style={{color:"#00a8e8",fontWeight:700}}>Full specifications from the manufacturer</a></p> : null}
           <p style={{fontSize:15,lineHeight:1.7,color:"#6b7280"}}>{intro}</p>
           <ProductActions sku={product.sku} name={product.name} price={price} available={product.available} category={product.category_path} />
           <div style={{marginTop:28,padding:20,borderRadius:12,background:"#f8fafc",color:"#374151"}}>
@@ -126,6 +140,40 @@ export default async function ProductPage({ params }) {
           </div>
         </section>
       </div>
+      {compare.length > 1 ? (
+        <section id="compare" style={{marginTop:56}}>
+          <h2 style={{fontSize:24,margin:"0 0 6px"}}>{group.title}</h2>
+          <p style={{margin:"0 0 18px",color:"#6b7280"}}>Side by side, so you can pick the right one for your home.</p>
+          <div className="comparewrap">
+            <table className="comparetable">
+              <thead>
+                <tr>
+                  <th scope="col"><span className="sr-only">Spec</span></th>
+                  {compare.map((p) => (
+                    <th key={p.sku} scope="col" className={p.sku === product.sku ? "current" : undefined}>
+                      {p.sku === product.sku ? <span>{p.name}</span> : <Link href={`/products/${encodeURIComponent(p.sku)}`} style={{color:"#111827"}}>{p.name}</Link>}
+                      <div style={{fontWeight:800,marginTop:6}}>{p.retail_price ? rands(p.retail_price) : ""}</div>
+                      <div style={{fontWeight:600,fontSize:13,color:p.available ? "#159947" : "#9a3412",marginTop:2}}>{p.available ? "In stock" : "Out of stock"}</div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Best for</th>
+                  {compare.map((p) => <td key={p.sku} className={p.sku === product.sku ? "current" : undefined}>{p.best_for}</td>)}
+                </tr>
+                {group.rows.map(([key, label]) => (
+                  <tr key={key}>
+                    <th scope="row">{label}</th>
+                    {compare.map((p) => <td key={p.sku} className={p.sku === product.sku ? "current" : undefined}>{(p.specs || []).find(([l]) => l === label)?.[1] || ""}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
       {alternatives.length ? (
         <section style={{marginTop:56}}>
           <h2 style={{fontSize:24,margin:"0 0 18px"}}>Similar products in stock</h2>
