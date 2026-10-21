@@ -79,15 +79,21 @@ export const productPath = (p) => `/products/${encodeURIComponent(p.sku)}`;
 
 const LITE_FIELDS = ["id", "sku", "name", "brand", "category_path", "retail_price", "available", "stock_qty"];
 
-async function buildIndex() {
+// Only what hubs and related-product rails need, so the cached list stays well under 2MB.
+async function liteCatalogue() {
   const rows = (await getPublicCatalogue()).filter((p) => p.sku && p.name);
-  // Only what hubs and related-product rails need, so the cached index stays small.
-  const items = rows.map((p) => {
+  return rows.map((p) => {
     const out = {};
     for (const k of LITE_FIELDS) out[k] = p[k] ?? null;
     out.image_urls = p.image_urls?.length ? [p.image_urls[0]] : [];
     return out;
   });
+}
+
+const cachedLite = unstable_cache(liteCatalogue, ["catalogue-lite-v1"], { revalidate: 3600 });
+
+async function buildIndex() {
+  const items = (await cachedLite()).slice();
   items.sort((a, b) => Number(b.available) - Number(a.available) || Number(b.stock_qty || 0) - Number(a.stock_qty || 0));
   const categories = new Map();
   const brands = new Map();
@@ -113,10 +119,8 @@ async function buildIndex() {
   };
 }
 
-const cachedIndex = unstable_cache(buildIndex, ["catalogue-index-v1"], { revalidate: 3600 });
-
-// Catalogue grouped by category and brand, in-stock items first. Cached for an hour.
-export const getCatalogueIndex = cache(() => cachedIndex());
+// Catalogue grouped by category and brand, in-stock items first. Source data cached for an hour.
+export const getCatalogueIndex = cache(buildIndex);
 
 export function priceText(p) {
   return p.retail_price ? `R ${Number(p.retail_price).toLocaleString("en-ZA")}` : "";
