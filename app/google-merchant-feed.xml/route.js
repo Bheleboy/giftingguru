@@ -1,5 +1,6 @@
 import { getMerchantProducts, productUrl, retailPrice, SITE_URL } from "../lib/catalog";
-import { largeImage } from "../lib/seo";
+import { brandOf, largeImage } from "../lib/seo";
+import { merchantDescription, merchantFields, merchantTitle } from "../lib/merchant";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -44,19 +45,23 @@ export async function GET() {
         .map((image) => `<g:additional_image_link>${xml(largeImage(image))}</g:additional_image_link>`)
         .join("");
 
+      const m = merchantFields(product, price);
       return `<item>
 <g:id>${xml(product.sku)}</g:id>
-<title>${xml(product.name)}</title>
-<description>${xml(cleanDescription(product))}</description>
+<title>${xml(merchantTitle(product))}</title>
+<description>${xml(merchantDescription(product, price))}</description>
 <link>${xml(productUrl(product))}</link>
 <g:image_link>${xml(largeImage(product.image_urls[0]))}</g:image_link>
 ${additionalImages}
 <g:availability>${availability}</g:availability>
 <g:price>${price.toFixed(2)} ZAR</g:price>
 <g:condition>new</g:condition>
-<g:brand>${xml(inferredBrand(product))}</g:brand>
+<g:brand>${xml(brandOf(product) || inferredBrand(product))}</g:brand>
 <g:mpn>${xml(product.sku)}</g:mpn>
-<g:product_type>${xml(String(product.category_path || "Gifts & Technology").replaceAll("/", " > "))}</g:product_type>
+${m.googleCategory ? `<g:google_product_category>${xml(m.googleCategory)}</g:google_product_category>` : ""}
+<g:product_type>${xml(m.productType)}</g:product_type>
+<g:shipping><g:country>ZA</g:country><g:service>Standard courier</g:service><g:price>${m.shippingPrice} ZAR</g:price></g:shipping>
+${m.customLabels.map((l, i) => `<g:custom_label_${i}>${xml(l)}</g:custom_label_${i}>`).join("")}
 </item>`;
     }).join("\n");
 
@@ -65,7 +70,7 @@ ${additionalImages}
 <channel>
 <title>GiftingGuru South Africa</title>
 <link>${SITE_URL}</link>
-<description>GiftingGuru live product catalogue</description>
+<description>GiftingGuru: gifts, tech and home essentials delivered across South Africa</description>
 ${items}
 </channel>
 </rss>`;
