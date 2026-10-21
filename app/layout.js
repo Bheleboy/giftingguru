@@ -9,7 +9,7 @@ export const metadata = {
   description: "Gifting Guru: gifts, tech and home essentials delivered across South Africa, plus free reminders for the dates that matter.",
   applicationName: "GiftingGuru",
   icons: { icon: "/favicon.webp", shortcut: "/favicon.webp", apple: "/favicon.webp" },
-  verification: { google: "ZdvadmHbbkEhMK4WaS-ScjQrM4jzIA45jL3DJ8OVcko" },
+  verification: { google: "ZdvadmHbbkEhMK4WaS-ScjQrM4jzIA45jL3DJ8OVcko", other: { "msvalidate.01": "EC3FCA60465E2EBCFF4B41F5637DBBB8" } },
   alternates: { types: { "text/plain": `${SITE}/llms.txt` } },
 };
 
