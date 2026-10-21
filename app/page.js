@@ -3,6 +3,14 @@ import { getCurrentStore, publicStoreConfig } from "./lib/store";
 import { getPublicCatalogue } from "./lib/public-catalog";
 import { getCatalogueIndex } from "./lib/seo";
 import { firstPaint } from "./lib/first-paint";
+import { unstable_cache } from "next/cache";
+
+// The first-paint slice is small, so it is data-cached; the full list is only read when the cache refreshes.
+const cachedFirstPaint = unstable_cache(
+  async (storeId, config) => firstPaint(await getPublicCatalogue(storeId), config),
+  ["home-first-paint-v1"],
+  { revalidate: 300 },
+);
 
 export const revalidate = 300;
 
@@ -24,12 +32,11 @@ export const metadata = {
 
 export default async function Home() {
   const store = await getCurrentStore();
-  const [items, index] = await Promise.all([getPublicCatalogue(store.id), getCatalogueIndex()]);
+  const config = publicStoreConfig(store);
+  const [first, index] = await Promise.all([cachedFirstPaint(store.id, config), getCatalogueIndex()]);
   const browse = {
     categories: index.categories.map(({ slug, label }) => ({ slug, label })),
     brands: index.brands.slice(0, 16).map(({ slug, label }) => ({ slug, label })),
   };
-  const config = publicStoreConfig(store);
-  const first = firstPaint(items, config);
   return <Storefront initialItems={first.items} categories={first.categories} catalogueTotal={first.total} store={config} browse={browse} />;
 }

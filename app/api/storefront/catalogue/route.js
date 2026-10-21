@@ -8,6 +8,10 @@ export async function GET() {
   if (!store) return NextResponse.json({ error: "Store not found" }, { status: 404 });
   const items = await getPublicCatalogue(store.id);
   return NextResponse.json({ items }, {
-    headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=1800" },
+    headers: {
+      "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=1800",
+      "CDN-Cache-Control": "public, s-maxage=300, stale-while-revalidate=1800",
+      "Vercel-CDN-Cache-Control": "public, s-maxage=300, stale-while-revalidate=1800",
+    },
   });
 }
