@@ -112,7 +112,7 @@ export default async function ProductPage({ params }) {
         {trail.map((t, i) => <span key={t.path}>{i < trail.length - 1 ? <><Link href={t.path}>{t.name}</Link><span className="sep">/</span></> : <span aria-current="page">{t.name}</span>}</span>)}
       </nav>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:40,alignItems:"start"}}>
-        <div style={{border:"1px solid #e5e7eb",borderRadius:16,padding:24,background:"#fff",minHeight:320,display:"grid",placeItems:"center"}}>
+        <div style={{border:"1px solid #e5e7eb",borderRadius:16,padding:24,background:"#fff",minHeight:320,display:"grid",gridTemplateColumns:"minmax(0,1fr)",placeItems:"center",minWidth:0,overflow:"hidden"}}>
           {image ? <Gallery images={(product.image_urls || []).map((u) => largeImage(u))} alt={product.name} dim={!product.available} /> : null}
         </div>
         <section>

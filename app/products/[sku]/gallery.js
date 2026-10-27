@@ -8,10 +8,10 @@ export default function Gallery({ images, alt, dim }) {
   if (!images?.length) return null;
   const many = images.length > 1;
   return (
-    <div style={{width:"100%"}}>
-      <div style={{display:"grid",placeItems:"center",minHeight:300}}>
+    <div style={{width:"100%",minWidth:0}}>
+      <div style={{display:"grid",gridTemplateColumns:"minmax(0,1fr)",placeItems:"center",minHeight:300,width:"100%"}}>
         <img src={images[i]} alt={many ? `${alt} - photo ${i + 1} of ${images.length}` : alt} width="800" height="800"
-          style={{maxWidth:"100%",maxHeight:460,height:"auto",objectFit:"contain",opacity:dim ? 0.55 : 1}} />
+          style={{width:"100%",maxWidth:"100%",maxHeight:460,height:"auto",aspectRatio:"1 / 1",objectFit:"contain",opacity:dim ? 0.55 : 1}} />
       </div>
       {many ? (
         <div role="list" aria-label="More photos" style={{display:"flex",gap:8,overflowX:"auto",marginTop:16,paddingBottom:4,scrollSnapType:"x mandatory"}}>
