@@ -2415,3 +2415,7 @@ a.title { display: block; color: inherit; }
   font-weight: 700;
   text-decoration: underline;
 }
+
+/* Sale pricing */
+s.was{margin-left:8px;color:#6b7280;font-weight:500;font-size:.8em;text-decoration:line-through}
+.badge.sale{background:#e63262;color:#fff}

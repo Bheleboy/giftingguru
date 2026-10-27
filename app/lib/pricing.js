@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
+import { activeSale } from "./sales";
 
 const URL = "https://xvzupsflasjdejgkcgrt.supabase.co";
 const PUBLISHABLE_KEY = "sb_publishable_ekMMmdmDw5YtFdhHUfh62g_Lz15Pwaf";
@@ -29,13 +30,25 @@ export function resolveMarkup(product, store, rules = [], override) {
   return matches.length ? Number(matches[0].markup_pct) : Number(store.default_markup_pct);
 }
 
-export function calculateRetailPrice(product, store, rules = [], override) {
+export function regularRetailPrice(product, store, rules = [], override) {
   if (override?.fixed_retail_price != null) return Math.ceil(Number(override.fixed_retail_price));
   const wholesale = Number(product.wholesale_price);
   if (!Number.isFinite(wholesale) || wholesale <= 0) return null;
   const vatMultiplier = 1 + Number(store.vat_pct || 0) / 100;
   const markupMultiplier = 1 + resolveMarkup(product, store, rules, override) / 100;
   return Math.ceil(wholesale * vatMultiplier * markupMultiplier);
+}
+
+// Selling price plus the normal ("was") price when a sale is running.
+export function retailPricing(product, store, rules = [], override) {
+  const regular = regularRetailPrice(product, store, rules, override);
+  const sale = activeSale(product, store, regular);
+  return sale ? { price: sale.price, was: sale.was, saleEnds: sale.ends } : { price: regular, was: null, saleEnds: null };
+}
+
+// The price the customer pays (sale price when a sale is running).
+export function calculateRetailPrice(product, store, rules = [], override) {
+  return retailPricing(product, store, rules, override).price;
 }
 
 export async function getPricingContext(storeId) {

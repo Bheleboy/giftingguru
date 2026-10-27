@@ -8,7 +8,7 @@ import { unstable_cache } from "next/cache";
 // The first-paint slice is small, so it is data-cached; the full list is only read when the cache refreshes.
 const cachedFirstPaint = unstable_cache(
   async (storeId, config) => firstPaint(await getPublicCatalogue(storeId), config),
-  ["home-first-paint-v1"],
+  ["home-first-paint-v2"],
   { revalidate: 300 },
 );
 

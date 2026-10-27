@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import { calculateRetailPrice, createServerClient, getPricingContext } from "./pricing";
+import { createServerClient, getPricingContext, retailPricing } from "./pricing";
 import { isHidden, withContent } from "./product-content";
 
 // A product is only sellable if SMD confirmed its stock recently. The sync runs
@@ -32,12 +32,15 @@ export function productUrl(product) {
 
 function toPublic(product, context) {
   const override = context.overrides.get(product.id);
-  const retail = override?.enabled === false ? null : calculateRetailPrice(product, context.store, context.rules, override);
+  const pricing = override?.enabled === false ? { price: null, was: null, saleEnds: null } : retailPricing(product, context.store, context.rules, override);
+  const retail = pricing.price;
   const stock = Math.max(0, Math.floor(Number(product.stock_qty || 0)));
   const out = {};
   for (const field of PUBLIC_PRODUCT_FIELDS) out[field] = product[field] ?? null;
   out.stock_qty = stock;
   out.retail_price = retail;
+  out.was_price = pricing.was;
+  out.sale_ends = pricing.saleEnds;
   out.available = Boolean(product.active && retail && stock > 0 && override?.enabled !== false && !isStale(product.synced_at) && !isHidden(product.sku));
   return withContent(out);
 }

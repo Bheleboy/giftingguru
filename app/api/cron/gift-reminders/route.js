@@ -1,3 +1,4 @@
+import { activeSale } from "../../../lib/sales";
 const SITE_URL = "https://www.giftingguru.co.za";
 const SUPABASE_URL = "https://xvzupsflasjdejgkcgrt.supabase.co";
 const RETAIL_MULTIPLIER = 1.15 * 1.35;
@@ -97,7 +98,7 @@ async function recommendationsFor(reminder) {
   const terms = recommendationTerms(reminder);
   const ranked = (products || []).map((product) => ({
     ...product,
-    retail_price: retailPrice(product.wholesale_price),
+    retail_price: activeSale(product, { vat_pct: 15 }, retailPrice(product.wholesale_price))?.price || retailPrice(product.wholesale_price),
     score: scoreProduct(product, terms, target),
   })).sort((a, b) => b.score - a.score || Number(b.stock_qty) - Number(a.stock_qty));
   const selected = [];

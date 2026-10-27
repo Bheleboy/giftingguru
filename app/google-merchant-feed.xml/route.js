@@ -54,7 +54,8 @@ export async function GET() {
 <g:image_link>${xml(largeImage(product.image_urls[0]))}</g:image_link>
 ${additionalImages}
 <g:availability>${availability}</g:availability>
-<g:price>${price.toFixed(2)} ZAR</g:price>
+<g:price>${(product.was_price || price).toFixed(2)} ZAR</g:price>
+${product.was_price ? `<g:sale_price>${price.toFixed(2)} ZAR</g:sale_price>${product.sale_ends ? `<g:sale_price_effective_date>${new Date().toISOString().slice(0, 10)}T00:00+02:00/${product.sale_ends.slice(0, 16)}+02:00</g:sale_price_effective_date>` : ""}` : ""}
 <g:condition>new</g:condition>
 <g:brand>${xml(brandOf(product) || inferredBrand(product))}</g:brand>
 <g:mpn>${xml(product.sku)}</g:mpn>

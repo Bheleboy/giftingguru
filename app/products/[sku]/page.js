@@ -89,6 +89,7 @@ export default async function ProductPage({ params }) {
       "@type": "Offer",
       priceCurrency: "ZAR",
       price: price ? price.toFixed(2) : undefined,
+      priceValidUntil: product.sale_ends ? product.sale_ends.slice(0, 10) : undefined,
       availability: product.available ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
       url,
@@ -116,7 +117,13 @@ export default async function ProductPage({ params }) {
         <section>
           <div style={{color:"#6b7280",fontSize:14,marginBottom:10}}>{brandHub ? <><Link href={`/brands/${brandHub.slug}`} style={{color:"#00a8e8",fontWeight:700}}>{brandHub.label}</Link> · </> : null}SKU {product.sku}</div>
           <h1 style={{fontSize:"clamp(28px,4vw,46px)",lineHeight:1.08,margin:"0 0 20px",color:"#111827"}}>{product.name}</h1>
-          {price && product.active ? <div style={{fontSize:34,fontWeight:800,color:"#111827",marginBottom:12}}>{rands(price)}</div> : null}
+          {price && product.active ? (
+            <div style={{display:"flex",alignItems:"baseline",flexWrap:"wrap",gap:"6px 12px",marginBottom:12}}>
+              {product.was_price ? <span style={{background:"#e63262",color:"#fff",fontWeight:800,fontSize:13,letterSpacing:".04em",textTransform:"uppercase",padding:"5px 10px",borderRadius:999,alignSelf:"center"}}>Sale</span> : null}
+              <span style={{fontSize:34,fontWeight:800,color:product.was_price ? "#e63262" : "#111827"}}>{rands(price)}</span>
+              {product.was_price ? <><s style={{fontSize:20,color:"#6b7280"}}>{rands(product.was_price)}</s><span style={{fontSize:15,fontWeight:700,color:"#159947"}}>Save {rands(product.was_price - price)}</span></> : null}
+            </div>
+          ) : null}
           {product.available ? (
             <div style={{fontWeight:700,color:"#159947",marginBottom:20}}>{stock < 10 ? `Only ${stock} left` : "In stock"} · Delivery R120, free over R1 500</div>
           ) : (
@@ -197,7 +204,7 @@ export default async function ProductPage({ params }) {
                 <Link href={`/products/${encodeURIComponent(p.sku)}`} className="hubcard">
                   <span className="hubpic">{p.image_urls?.[0] ? <img src={p.image_urls[0]} alt={p.name} loading="lazy" /> : null}</span>
                   <span className="hubname">{p.name}</span>
-                  <span className="hubprice">{rands(p.retail_price)}</span>
+                  <span className="hubprice">{rands(p.retail_price)}{p.was_price ? <s style={{marginLeft:6,color:"#6b7280",fontWeight:500,fontSize:"0.85em"}}>{rands(p.was_price)}</s> : null}</span>
                 </Link>
               </li>
             ))}

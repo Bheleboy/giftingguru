@@ -416,7 +416,7 @@ export default function Storefront({ initialItems = [], categories = null, catal
                 )}
                 <div>
                   <a href={`/products/${encodeURIComponent(p.sku)}`} onClick={(e) => { if (!e.metaKey && !e.ctrlKey) e.preventDefault(); }}><span>{p.name}</span></a>
-                  <b>{rands(sell(p))}</b>
+                  <b>{rands(sell(p))}{p.was_price ? <s className="was">{rands(p.was_price)}</s> : null}</b>
                 </div>
               </article>
             ))}
@@ -468,8 +468,8 @@ export default function Storefront({ initialItems = [], categories = null, catal
                 soh = Number(p.stock_qty || 0);
               return (
                 <article className="card" key={p.id} onClick={() => view(p)}>
-                  <span className="badge">
-                    {(p.name || "").split(" ")[0] || "GiftingGuru"}
+                  <span className={p.was_price ? "badge sale" : "badge"}>
+                    {p.was_price ? "Sale" : (p.name || "").split(" ")[0] || "GiftingGuru"}
                   </span>
                   <div className="pic">
                     {p.image_urls?.[0] && (
@@ -481,7 +481,7 @@ export default function Storefront({ initialItems = [], categories = null, catal
                     <a className="title" href={`/products/${encodeURIComponent(p.sku)}`} onClick={(e) => { if (!e.metaKey && !e.ctrlKey) e.preventDefault(); }}>{p.name}</a>
                     <div className="price">
                       {price
-                        ? rands(price)
+                        ? <>{rands(price)}{p.was_price ? <s className="was">{rands(p.was_price)}</s> : null}</>
                         : "Price updating"}
                     </div>
                     <div className={"stock " + (soh < 10 ? "low" : "")}>
@@ -622,6 +622,7 @@ export default function Storefront({ initialItems = [], categories = null, catal
               <div className="detailSku">SKU {detail.sku}</div>
               <div className="detailPrice">
                 {rands(sell(detail))}
+                {detail.was_price ? <s className="was">{rands(detail.was_price)}</s> : null}
               </div>
               <div className="detailStock">
                 {isAvailable(detail)

@@ -78,7 +78,7 @@ export function categoryLabel(slug) {
 
 export const productPath = (p) => `/products/${encodeURIComponent(p.sku)}`;
 
-const LITE_FIELDS = ["id", "sku", "name", "brand", "category_path", "retail_price", "available", "stock_qty"];
+const LITE_FIELDS = ["id", "sku", "name", "brand", "category_path", "retail_price", "was_price", "available", "stock_qty"];
 
 // Only what hubs and related-product rails need, so the cached list stays well under 2MB.
 async function liteCatalogue() {
@@ -91,7 +91,7 @@ async function liteCatalogue() {
   });
 }
 
-const cachedLite = unstable_cache(liteCatalogue, ["catalogue-lite-v1"], { revalidate: 3600 });
+const cachedLite = unstable_cache(liteCatalogue, ["catalogue-lite-v2"], { revalidate: 3600 });
 
 async function buildIndex() {
   const items = (await cachedLite()).slice();
