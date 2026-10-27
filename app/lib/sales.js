@@ -28,6 +28,14 @@ export const SALES = {
     ends: "2026-12-12T23:59:59+02:00",
     label: "Sale",
   },
+  "CREALITY-K1MAX": {
+    // Original (pre-2025) K1 Max. Normal price R15 524 (cost incl. VAT ~R11 499
+    // + 35%) would sit above the 2025 model on sale. Matched to Wootware and
+    // BuildVolume (R12 999) so the older model stays the cheaper option.
+    price: 12999,
+    ends: "2026-12-12T23:59:59+02:00",
+    label: "Sale",
+  },
 };
 
 export function activeSale(product, store, regular, now = Date.now()) {
