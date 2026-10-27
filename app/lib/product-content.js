@@ -148,6 +148,42 @@ export const PRODUCT_CONTENT = {
     ].map((f) => `https://cdn.shopify.com/s/files/1/0911/3233/0284/files/${f}`),
     oemUrl: "https://www.creality.com/support/creality-ender-3-v3-plus",
   },
+  "CREALITY-K1MAX2025": {
+    name: "Creality K1 Max 2025 AI 3D Printer, CFS Ready (300 x 300 x 300 mm)",
+    brand: "Creality",
+    bestFor: "Small businesses, print farms and serious makers who want big, fast, enclosed printing that watches itself.",
+    description:
+      "The K1 Max is Creality's large-format enclosed CoreXY printer, now in its 2025 version and ready for Creality's CFS multicolour system. The 300 x 300 x 300 mm chamber takes full-size helmets, prototypes and batches of parts, and it prints at up to 600 mm/s (300 mm/s typical) with 20 000 mm/s² acceleration and up to 32 mm³/s flow. A ceramic-heated hotend reaches 200 °C in about 40 seconds and runs to 300 °C, with a hardened steel nozzle, titanium heatbreak and dual-gear direct extruder. Two smart features save failed prints: AI LiDAR scans the first layer at 1 micron resolution and pauses if something is wrong, and the built-in AI camera spots spaghetti, debris and foreign objects while letting you watch and record time-lapses from your phone. Levelling is hands-free, input shaping cuts ringing, and a large part-cooling fan plus an 18 W chamber fan keep overhangs crisp. The die-cast aluminium frame is fully enclosed with an air filter, and you send jobs over Wi-Fi or Ethernet from Creality Print, Cura or Simplify3D. Add Creality's CFS-C (sold separately) for multicolour printing with RFID filament recognition and automatic spool switching.",
+    specs: {
+      buildVolume: "300 x 300 x 300 mm, fully enclosed",
+      speed: "Up to 600 mm/s (300 mm/s typical)",
+      acceleration: "Up to 20 000 mm/s²",
+      flow: "Up to 32 mm³/s",
+      motion: "CoreXY, die-cast aluminium frame",
+      extruder: "Dual-gear direct drive",
+      nozzle: "Hardened steel, up to 300 °C, titanium heatbreak",
+      ai: "AI LiDAR first-layer check, AI camera failure detection",
+      calibration: "Hands-free auto levelling, input shaping",
+      cooling: "Part-cooling fan plus 18 W chamber fan, air filter",
+      multicolour: "CFS ready, add Creality CFS-C (sold separately)",
+      connectivity: "Wi-Fi, Ethernet, USB, Creality Cloud",
+      storage: "8 GB, dual-core 1.2 GHz",
+    },
+    // Official Creality product images (store.creality.com), served resized from their CDN.
+    images: [
+      "k1MAX-01-01.png?v=1773728799&width=1000",
+      "f59638aabe522d268b780a97719c82a7_9e61b96d-3050-476c-801b-30d2d5ed8908.jpg?v=1773728497&width=1000",
+      "93b473f116fe245222432ebe0bb7dea4_f5bd4b93-8b6d-441f-a624-7646cf5b2827.jpg?v=1773728497&width=1000",
+      "de0e6a0935fb357d467a74984575c654_9fb5f931-c060-42aa-9b9a-9213e3f6fdbd.jpg?v=1773728497&width=1000",
+      "f419be457ff710cc4db7a4b8bb6c2c9e_20ce9d8d-d055-4fc0-b625-9a55047fdc67.jpg?v=1773728497&width=1000",
+      "4216e575a04fafaf4b9424eb1f4e8ea6_fc4c3bb8-5782-4495-8b69-f70761a486dd.jpg?v=1773728497&width=1000",
+      "3d4f684231978adf9fa4272ddf0a23ef_4d063f0d-c00e-437c-a2c1-dfea7a26995e.jpg?v=1773728497&width=1000",
+      "e92e29089c59465f9e116078bd8f80ae_8e299677-ea9a-4826-9de3-bb57b9eae221.jpg?v=1773728497&width=1000",
+      "57a901f6d40d2e50180b182313f39bb3_7e37a75e-64cd-4692-a019-8bbdaea62555.jpg?v=1773728497&width=1000",
+      "2aa29af8cc53d87d9e86cd8ac1ce2447_771ff66b-4cae-43f0-9724-8a62aa33c5c1.jpg?v=1773728497&width=1000",
+    ].map((f) => `https://cdn.shopify.com/s/files/1/0893/0603/8637/files/${f}`),
+    oemUrl: "https://www.creality.com/products/creality-k1-max-3d-printer",
+  },
 };
 
 // Comparison groups: the order the products appear in, and the spec rows shown.
@@ -193,6 +229,11 @@ export const SPEC_LABELS = {
   sensors: "Sensors",
   accuracy: "Accuracy",
   size: "Size and weight",
+  flow: "Max flow",
+  ai: "AI features",
+  cooling: "Cooling",
+  multicolour: "Multicolour",
+  storage: "Storage and CPU",
 };
 
 // Products we never sell, whatever the supplier feed says (stock, price, active).

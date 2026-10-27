@@ -20,6 +20,14 @@ export const SALES = {
     ends: "2026-12-12T23:59:59+02:00", // last shipping date before Christmas
     label: "Sale",
   },
+  "CREALITY-K1MAX2025": {
+    // Normal price R17 076 (cost incl. VAT ~R12 649 + 35%). SA competitors in
+    // Oct 2026 for the 2025 model: R14 580 (Wootware, supplier stock),
+    // R14 999.99 (3D Printing Store), R19 999 (HiFi Corp).
+    price: 14499,
+    ends: "2026-12-12T23:59:59+02:00",
+    label: "Sale",
+  },
 };
 
 export function activeSale(product, store, regular, now = Date.now()) {
