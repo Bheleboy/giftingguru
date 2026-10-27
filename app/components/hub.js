@@ -43,7 +43,7 @@ export function ProductGrid({ items, eager = 8 }) {
               ) : null}
             </span>
             <span className="hubname">{p.name}</span>
-            <span className="hubprice">{priceText(p)}</span>
+            <span className="hubprice">{priceText(p)}{p.was_price ? <s className="was">{priceText({ retail_price: p.was_price })}</s> : null}</span>
             <span className="hubstock">{p.available ? "In stock" : "Out of stock"}</span>
           </Link>
         </li>

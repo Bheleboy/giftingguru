@@ -3,6 +3,7 @@ import { getCurrentStore } from "../../lib/store";
 import { getAlternatives, getPublicCatalogue, getPublicProduct, SITE_URL } from "../../lib/public-catalog";
 import { COMPARE_GROUPS } from "../../lib/product-content";
 import ProductActions from "./product-actions";
+import Gallery from "./gallery";
 import Link from "next/link";
 import { brandOf, breadcrumbLd, categoryLabel, categorySlug, getCatalogueIndex, jsonLd as ld, largeImage, OFFER_EXTRAS, productIntro, slugify } from "../../lib/seo";
 import { rands } from "../../lib/money";
@@ -112,7 +113,7 @@ export default async function ProductPage({ params }) {
       </nav>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:40,alignItems:"start"}}>
         <div style={{border:"1px solid #e5e7eb",borderRadius:16,padding:24,background:"#fff",minHeight:320,display:"grid",placeItems:"center"}}>
-          {image ? <img src={image} alt={product.name} width="800" height="800" style={{maxWidth:"100%",maxHeight:460,objectFit:"contain",opacity:product.available ? 1 : 0.55}} /> : null}
+          {image ? <Gallery images={(product.image_urls || []).map((u) => largeImage(u))} alt={product.name} dim={!product.available} /> : null}
         </div>
         <section>
           <div style={{color:"#6b7280",fontSize:14,marginBottom:10}}>{brandHub ? <><Link href={`/brands/${brandHub.slug}`} style={{color:"#00a8e8",fontWeight:700}}>{brandHub.label}</Link> · </> : null}SKU {product.sku}</div>
