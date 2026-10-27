@@ -105,6 +105,31 @@ export const PRODUCT_CONTENT = {
     },
     oemUrl: "https://www.tapo.com/za/product/robot-vacuum/tapo-rv30-max/",
   },
+
+  "ENDER-3V3-PLUS": {
+    name: "Creality Ender-3 V3 Plus CoreXZ 3D Printer (300 x 300 x 330 mm)",
+    brand: "Creality",
+    bestFor: "Makers, small businesses and schools that want big prints, fast, without fiddly setup.",
+    description:
+      "The Ender-3 V3 Plus is the big-bed version of Creality's CoreXZ Ender-3 V3, with a 300 x 300 x 330 mm build volume, 58% more than the standard V3, so helmets, storage boxes and multi-part batches print in one go. The X and Z axes are belt-driven together by two motors, and two Y-axis motors with diagonal support rods keep the large bed steady, reaching up to 600 mm/s (300 mm/s typical) at 20 000 mm/s² acceleration. A direct-drive extruder with a spring-loaded grip feeds a 60 W, 300 °C hotend, and the tri-metal 'Unicorn' nozzle with a hardened steel tip swaps out one-handed. Two part-cooling fans keep overhangs crisp. Setup is hands-off: one tap runs auto bed levelling, Z-offset and input shaping, so there is no paper test. The frame is die-cast aluminium, it runs Klipper-based Creality OS, and you print over Wi-Fi or USB from Creality Print. It handles PLA, PETG, ABS, flexible TPU and carbon-fibre blends, and a filament run-out sensor and power-loss recovery protect long prints.",
+    specs: {
+      buildVolume: "300 x 300 x 330 mm",
+      speed: "Up to 600 mm/s (300 mm/s typical)",
+      acceleration: "Up to 20 000 mm/s²",
+      motion: "CoreXZ, dual Y-axis motors",
+      extruder: "Direct drive, 60 W hotend, up to 300 °C",
+      nozzle: "0.4 mm quick-swap tri-metal, hardened steel tip",
+      bed: "Flexible textured PEI, up to 100 °C",
+      calibration: "Auto levelling, Z-offset and input shaping",
+      filaments: "PLA, PETG, ABS, TPU 95A, PLA-CF, PETG-CF",
+      screen: "4.3 inch colour touchscreen",
+      connectivity: "Wi-Fi, USB drive, Creality Cloud",
+      sensors: "Filament run-out, power-loss recovery",
+      accuracy: "±0.2 mm, 0.1 to 0.35 mm layers",
+      size: "410 x 445 x 577 mm, about 11.5 kg",
+    },
+    oemUrl: "https://www.creality.com/support/creality-ender-3-v3-plus",
+  },
 };
 
 // Comparison groups: the order the products appear in, and the spec rows shown.
@@ -136,6 +161,20 @@ export const SPEC_LABELS = {
   quiet: "Quiet mode",
   app: "Tapo app",
   voice: "Voice control",
+  buildVolume: "Build volume",
+  speed: "Print speed",
+  acceleration: "Acceleration",
+  motion: "Motion system",
+  extruder: "Extruder",
+  nozzle: "Nozzle",
+  bed: "Build plate",
+  calibration: "Calibration",
+  filaments: "Filaments",
+  screen: "Screen",
+  connectivity: "Connectivity",
+  sensors: "Sensors",
+  accuracy: "Accuracy",
+  size: "Size and weight",
 };
 
 // Products we never sell, whatever the supplier feed says (stock, price, active).
